@@ -25,14 +25,14 @@ _start:
 
     ; Pop the name of the program to rcx
     pop     rcx
-    call    .loop
+    jmp    .loop
     ; Test the printing
     
     ;test printing char.
 ;    print_char 'a'
     
     ; End of the program
-    call    .exit
+    jmp    .exit
 
 .loop:
     cmp byte [rcx], 0x0
