@@ -26,8 +26,9 @@ _start:
     ; Pop the name of the program to r 8
     pop     r8
     ; Test the printing
-    call    .iterateThroughString
-
+    ;call    .iterateThroughString
+    
+    ;test printing char.
     print_char 'a'
     
     ; End of the program
@@ -35,8 +36,7 @@ _start:
 
 
 
-    .iterateThroughString:
-        ret
+    
 
     
 
