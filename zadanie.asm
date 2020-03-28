@@ -7,7 +7,7 @@
 %macro print_char 1
     mov     eax, 4      ; printing argument
     mov     ebx, 1
-    mov     ecx, [%1]
+    mov     ecx, "aaaaaaa"
     mov     edx, 10
     int     0x80
 %endmacro
