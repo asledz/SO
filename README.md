@@ -1,0 +1,2 @@
+# SO
+Systemy operacyjne, MIMUW
