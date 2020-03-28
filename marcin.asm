@@ -25,12 +25,16 @@ loop:
     je exit 
     mov eax, 4
     mov ebx, 1
-    mov edx, 1
+    mov edx, HELLO_LEN
+    mov     ecx, HELLO
     int 0x80
     inc rcx
     jmp loop
-    
-bad:
-    end_program 1  
+
+
 exit:
     end_program 0
+
+
+bad:
+    end_program 1  
