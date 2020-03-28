@@ -36,7 +36,7 @@ _start:
 
 .loop:
     cmp byte [r8], 0x0
-    je ret
+    je .exit
     mov eax, 4
     mov ebx, 1
     mov ecx, [r8]
