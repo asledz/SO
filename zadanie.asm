@@ -19,8 +19,8 @@ _start:
   jne .wrongInput
 
 
-
   end_with_code 0
 
-  .wrongInput
+  .wrongInput:
     end_with_code 1
+    ret
