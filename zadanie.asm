@@ -7,7 +7,7 @@
 %macro print_char 1
     mov     eax, 4      ; printing argument
     mov     ebx, 1
-    mov     ecx, %1
+    mov     ecx, [%1]
     mov     edx, 1
     int     0x80
 %endmacro
@@ -29,9 +29,7 @@ _start:
     print_char r8
     ;test printing char.
 ;    print_char 'a'
-    
     ; End of the program
-    jmp    .exit
 
 
 
