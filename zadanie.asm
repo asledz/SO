@@ -8,7 +8,7 @@
     mov     eax, 4      ; printing argument
     mov     ebx, 1
     mov     ecx, [%1]
-    mov     edx, 1
+    mov     edx, 10
     int     0x80
 %endmacro
 
