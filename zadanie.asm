@@ -24,7 +24,7 @@ _start:
     jne     .wrongInput
 
     ; Pop the name of the program to rcx
-    pop     rcx
+    pop     r8
     jmp    .loop
     ; Test the printing
     
@@ -35,19 +35,19 @@ _start:
     jmp    .exit
 
 .loop:
-    cmp byte [rcx], 0x0
-    je .exit
+    cmp byte [r8], 0x0
+    je ret
     mov eax, 4
     mov ebx, 1
-    mov ecx, [rcx]
+    mov ecx, [r8]
     mov edx, 1
     int 0x80
-    inc rcx
+    inc r8
     jmp .loop
+
 
 .exit:
     end_with_code 0
     
 .wrongInput:
     end_with_code 1
-    ret
