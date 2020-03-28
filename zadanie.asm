@@ -5,7 +5,7 @@
 %endmacro
 
 %macro print_char 1
-    mov     eax, 4
+    mov     eax, 4      ; printing argument
     mov     ebx, 1
     mov     ecx, %1
     mov     edx, 1
@@ -23,23 +23,31 @@ _start:
     cmp     rax, 5      ; the number of arguments includes name.
     jne     .wrongInput
 
-    ; Pop the name of the program to r 8
-    pop     r8
+    ; Pop the name of the program to rcx
+    pop     rcx
+    call    .loop
     ; Test the printing
-    ;call    .iterateThroughString
     
     ;test printing char.
-    print_char 'a'
+;    print_char 'a'
     
     ; End of the program
+    call    .exit
+
+.loop:
+    cmp byte [rcx], 0x0
+    je exit
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, [rcx]
+    mov edx, 1
+    int 0x80
+    inc rcx
+    jmp loop
+
+.exit:
     end_with_code 0
-
-
-
     
-
-    
-
-    .wrongInput:
-        end_with_code 1
-        ret
+.wrongInput:
+    end_with_code 1
+    ret
