@@ -25,25 +25,15 @@ _start:
 
     ; Pop the name of the program to rcx
     pop     r8
-    jmp    .loop
     ; Test the printing
-    
+    print_char r8
     ;test printing char.
 ;    print_char 'a'
     
     ; End of the program
     jmp    .exit
 
-.loop:
-    cmp byte [r8], 0x0
-    je .exit
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, [r8]
-    mov edx, 1
-    int 0x80
-    inc r8
-    jmp .loop
+
 
 
 .exit:
