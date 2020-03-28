@@ -36,14 +36,14 @@ _start:
 
 .loop:
     cmp byte [rcx], 0x0
-    je exit
+    je .exit
     mov eax, 4
     mov ebx, 1
     mov ecx, [rcx]
     mov edx, 1
     int 0x80
     inc rcx
-    jmp loop
+    jmp .loop
 
 .exit:
     end_with_code 0
