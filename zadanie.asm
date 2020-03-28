@@ -12,6 +12,14 @@
     int     0x80
 %endmacro
 
+%macro write_string 2
+   mov   eax, 4
+   mov   ebx, 1
+   mov   ecx, %1
+   mov   edx, %2
+   int   80h
+%endmacro
+
 global _start
 
 section .rodata
@@ -24,9 +32,9 @@ _start:
     jne     .wrongInput
 
     ; Pop the name of the program to rcx
-    pop     r8
+    pop     rax
     ; Test the printing
-    print_char [r8]
+    write_string [eax], 4
     ;test printing char.
 ;    print_char 'a'
     ; End of the program
