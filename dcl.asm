@@ -17,9 +17,9 @@ TOP_LIMIT       equ 90
 ; checks if character is correct
 %macro correct_character 1
     cmp     %1, DOWN_LIMIT
-    jl      .bad_input
+    jl      .bad_inital_check2
     cmp     %1, TOP_LIMIT
-    jg      .bad_input
+    jg      .bad_inital_check2
 %endmacro
 
 %macro correct_permutation 1
@@ -36,7 +36,7 @@ TOP_LIMIT       equ 90
     
     ; LENGTH INCORRECT
     cmp                 rcx, 42
-    jne                 .bad_input
+    jne                 .bad_inital_check
     
 %endmacro
 
@@ -96,3 +96,6 @@ _start:
     
 .bad_inital_check:
     end_with_code   2
+ 
+.bad_inital_check2:
+    end_with_code   3
