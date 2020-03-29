@@ -58,8 +58,8 @@ TOP_LIMIT       equ 90
         cmp         byte [%2 + rcx], 0
         jne         .bad_input_4
         
-        movzx         rax, byte [%1 + rdx]
-        mov         [%2 + rcx], rax
+        movzx       rax, byte [%1 + rdx]
+        mov         byte [%2 + rcx], al
         
         inc         rdx
         jmp         %%iterate_rev
