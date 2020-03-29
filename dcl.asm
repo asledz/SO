@@ -207,6 +207,12 @@ _start:
     
     mov     [e1_len], eax
 
+    mov             eax, 4
+    mov             ebx, 1
+    mov             ecx, str
+    mov             edx, e1_len
+    int             0x80
+
     cmp     [e1_len], edx
     je      .main_loop
     jmp     .end_program
