@@ -13,6 +13,13 @@ TOP_LIMIT       equ 90
     int     0x80
 %endmacro
 
+%macro print 1
+    mov     eax, 4
+    mov     ebx, 1
+    mov    ecx, %1
+    mov     edx, 42
+    int     0x80
+%endmacro
 
 ; checks if character is correct
 %macro correct_character 1
@@ -51,9 +58,9 @@ TOP_LIMIT       equ 90
         cmp         byte [%2 + rcx], 43
         jne         .bad_input_4
         
-;        mov         rax, [%1 + rdx]
-;        mov         [%2 + rcx], rax
-
+        mov         rax, [%1 + rdx]
+        mov         [%2 + rcx], rax
+        
         inc         rdx
         jmp         %%iterate_rev
     %%end_rev:
@@ -134,4 +141,5 @@ _start:
     end_with_code   3
     
 .bad_input_4:
+    print           l1
     end_with_code   4
