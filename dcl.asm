@@ -16,7 +16,7 @@ TOP_LIMIT       equ 90
 %macro print_l 1
     mov     eax, 4
     mov     ebx, 1
-    mov    ecx, %1
+    mov     ecx, %1
     mov     edx, 42
     int     0x80
 %endmacro
@@ -42,7 +42,6 @@ TOP_LIMIT       equ 90
         jmp                 %%iterate_length
     %%end_length:
     
-    ; LENGTH INCORRECT
     cmp                 rcx, 42
     jne                 .bad_inital_check
 %endmacro
@@ -84,6 +83,35 @@ TOP_LIMIT       equ 90
     jne     %%wrong_len
 %endmacro
 
+%macro change_rotors 0
+    inc         r13b
+    cmp         r13b, TOP_LIMIT+1
+    je          %%fix_rotor_r
+    
+    %%check_rotor_l:
+    cmp         r13b, 'L'
+    je          %%move_rotor_l
+    cmp         r13b, 'R'
+    je          %%move_rotor_l
+    cmp         r13b, 'T'
+    je          %%move_rotor_l
+    jmp         %%end_rotors
+    
+    %%fix_rotor_r:
+    mov         r13b, DOWN_LIMIT
+    jmp         %%check_rotor_l
+    
+    %%move_rotor_l:
+    mov         r12b, DOWN_LIMIT
+    jmp         %%end_rotors
+    
+    %%fix_rotor_l:
+    mov         r12b, DOWN_LIMIT
+    jmp         %%end_rotors
+    
+    %%end_rotors:
+%endmacro
+
 ;;;;;;;; END OF MACROS ;;;;;;;;
 
 ;;;;;;;; SECTIONS ;;;;;;;;
@@ -94,13 +122,9 @@ section .data
     l1:     times 42 db 0
     r1:     times 42 db 0
     t1:     times 42 db 0
-    lkey:   times 0 db 0
-    rkey:   times 0 db 0
 
 section .bss
     e1_len resd 1           ; Ile przeczytanych.
-;    R1:     times 42 db
-;    T1:     times 42 db
 section .text
 
 ;;;;;;;; PROGRAM START ;;;;;;;;
@@ -112,44 +136,48 @@ _start:
     jne     .bad_input
     pop     rax             ; nazwa pliku
     
-    ;; L
     pop                             r8              ; permutacja L
     correct_permutation             r8
     create_reverse_permutation      r8, l1
-    print_l l1
     
-    ;; R
     pop                             r9              ; permutacja R
     correct_permutation             r9
     create_reverse_permutation      r9, r1
-    print_l r1
     
-    ;; T
     pop                             r10             ; permutacja T
     correct_permutation             r10
     create_reverse_permutation      r10, t1
-    print_l t1
     
     pop                             r12             ; zmienna: Key
     check_key                       r12
+    mov                             r13b, byte [r12 + 1]
+    mov                             r12b, byte [r12]
 
 .main_loop:
-    ;; CZYTANIE loopem.
     mov     eax, 3
     mov     ebx, 0
-    mov     ecx, str            ; Destination
-    mov     edx, BUFFER_SIZE    ; Length excpected
+    mov     ecx, str
+    mov     edx, BUFFER_SIZE
     int     0x80
-
-    mov [e1_len], eax           ; Ile było przeczytanych
     
+    mov     r15, 0
+    .small_loop:
+;        mov                 r14, byte [str + r15]
+        
+        change_rotors
+        inc                 r15
+        cmp                 r15, [e1_len]
+        je                  .end_small_loop
+    .end_small_loop:
+    
+    mov     [e1_len], eax
     cmp     eax, edx
     je      .main_loop
     jmp     .end_program
 
 
 .end_program:
-
+    
 .normal_exit:
     end_with_code   0
 
