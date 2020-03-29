@@ -55,7 +55,7 @@ TOP_LIMIT       equ 90
         
         movzx       rcx, byte [%1 + rdx]
         sub         rcx, DOWN_LIMIT
-        cmp         byte [%2 + rcx], 43
+        cmp         byte [%2 + rcx], 0
         jne         .bad_input_4
         
         mov         rax, [%1 + rdx]
@@ -73,9 +73,9 @@ global _start
 
 section .data
     str:    times BUFFER_SIZE db 0 ; alokuję miejsce na string.
-    l1:     times 42 db 43
-    r1:     times 42 db 43
-    t1:     times 42 db 43
+    l1:     times 42 db 0
+    r1:     times 42 db 0
+    t1:     times 42 db 0
 
 section .bss
     e1_len resd 1           ; Ile przeczytanych.
