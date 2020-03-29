@@ -83,7 +83,7 @@ TOP_LIMIT       equ 90
     jne     %%wrong_len
 %endmacro
 
-%macro change_rotors 0
+%macro change_rotors 1
     inc         r13b
     cmp         r13b, TOP_LIMIT+1
     je          %%fix_rotor_r
@@ -110,6 +110,41 @@ TOP_LIMIT       equ 90
     jmp         %%end_rotors
     
     %%end_rotors:
+%endmacro
+
+%macro code_letter_with_Q 1
+nop
+%endmacro
+
+%macro code_letter_with_Q_reverse 1
+nop
+%endmacro
+
+%macro code_letter_with_rotor 1
+nop
+%endmacro
+
+
+%macro code_letter 1 ;; codes the letter stored in r14b
+    code_letter_with_Q          r13b
+    code_letter_with_rotor      r9
+    code_letter_with_Q_reverse  r13b
+    
+    code_letter_with_Q          r12b
+    code_letter_with_rotor      r8
+    code_letter_with_Q_reverse  r12b
+    
+    code_letter_with_rotor      r10
+    
+    code_letter_with_Q          r12b
+    code_letter_with_rotor      l1
+    code_letter_with_Q_reverse  r12b
+    
+    code_letter_with_Q          r13b
+    code_letter_with_rotor      r1
+    code_letter_with_Q_reverse  r13b
+    
+    change_rotors  0
 %endmacro
 
 ;;;;;;;; END OF MACROS ;;;;;;;;
@@ -162,15 +197,16 @@ _start:
     
     mov     r15, 0
     .small_loop:
-;        mov                 r14, byte [str + r15]
-        
-        change_rotors
+        mov                 r14b, byte [str + r15]
+        code_letter         0
+        mov                 [str + r15], r14b
         inc                 r15
         cmp                 r15, [e1_len]
         je                  .end_small_loop
     .end_small_loop:
     
     mov     [e1_len], eax
+
     cmp     eax, edx
     je      .main_loop
     jmp     .end_program
