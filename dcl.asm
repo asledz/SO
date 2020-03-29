@@ -37,7 +37,7 @@ _start:
     mov     ebx, 0
     mov     ecx, str            ; Destination
     mov     edx, BUFFER_SIZE    ; Length
-    
+    int     0x80
 
     mov [e1_len], eax           ; Ile było przeczytanych
     cmp     eax, edx
