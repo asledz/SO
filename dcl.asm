@@ -93,3 +93,6 @@ _start:
 
 .bad_input:
     end_with_code   1
+    
+.bad_inital_check:
+    end_with_code   2
