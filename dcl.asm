@@ -76,22 +76,22 @@ TOP_LIMIT       equ 90
 %endmacro
 
 %macro change_rotors 1
-    inc         r13b
-    cmp         r13b, TOP_LIMIT+1
-    je          %%fix_rotor_r
+    add         r13b, 1 ; tutaj trzymam R key
+    cmp         r13b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
+    je          %%fix_rotor_r       ;napraw
     
     %%check_rotor_l:
     cmp         r13b, 'L'
-    je          %%move_rotor_l
+    je          %%move_rotor_l      ;ruszam jesli l
     cmp         r13b, 'R'
-    je          %%move_rotor_l
+    je          %%move_rotor_l      ;ruszam jesli r
     cmp         r13b, 'T'
-    je          %%move_rotor_l
-    jmp         %%end_rotors
+    je          %%move_rotor_l      ;ruszam jesli t
+    jmp         %%end_rotors        ;koncze wszystko
     
     %%fix_rotor_r:
-    mov         r13b, DOWN_LIMIT
-    jmp         %%check_rotor_l
+    mov         r13b, DOWN_LIMIT    ;musze ustawić go na dolny limit
+    jmp         %%check_rotor_l      ; sprawdzam lke
     
     %%move_rotor_l:
     mov         r12b, DOWN_LIMIT
@@ -211,7 +211,7 @@ _start:
         cmp                 r15, [e1_len]
         je                  .end_small_loop
     .end_small_loop:
-    
+    end_with_code [r15]
     ;; tyle wczytano znaków
 
     ;; WYPISZ POPRAWIONY STRING
