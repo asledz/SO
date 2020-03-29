@@ -207,7 +207,7 @@ _start:
     
     mov     [e1_len], eax
 
-    cmp     eax, edx
+    cmp     [e1_len], edx
     je      .main_loop
     jmp     .end_program
 
