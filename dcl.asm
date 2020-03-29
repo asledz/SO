@@ -68,11 +68,12 @@ TOP_LIMIT       equ 90
 
 %macro check_key 1
     mov             rdx, 0
+    mov             rcx, %1
     %%iterate_key:
         cmp         byte [rdx + rcx], 0
         je          %%iterate_end
         
-        correct_character   byte [%1 + rdx]
+        correct_character   byte [rcx + rdx]
         
         inc         rdx
         jmp         %%iterate_key
