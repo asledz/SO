@@ -13,7 +13,7 @@ TOP_LIMIT       equ 90
     int     0x80
 %endmacro
 
-%macro print 1
+%macro print_l 1
     mov     eax, 4
     mov     ebx, 1
     mov    ecx, %1
@@ -58,7 +58,7 @@ TOP_LIMIT       equ 90
         cmp         byte [%2 + rcx], 0
         jne         .bad_input_4
         
-        mov         rax, [%1 + rdx]
+        movzx         rax, byte [%1 + rdx]
         mov         [%2 + rcx], rax
         
         inc         rdx
@@ -141,5 +141,5 @@ _start:
     end_with_code   3
     
 .bad_input_4:
-    print           l1
+    print_l           l1
     end_with_code   4
