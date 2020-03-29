@@ -13,14 +13,6 @@ TOP_LIMIT       equ 90
     int     0x80
 %endmacro
 
-%macro print_l 1
-    mov     eax, 4
-    mov     ebx, 1
-    mov     ecx, %1
-    mov     edx, 42
-    int     0x80
-%endmacro
-
 ; checks if character is correct
 %macro correct_character 1
     cmp     %1, DOWN_LIMIT
@@ -233,5 +225,4 @@ _start:
     end_with_code   3
     
 .bad_input_4:
-    print_l           l1
     end_with_code   4
