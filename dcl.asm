@@ -58,7 +58,7 @@ section .text
 _start:
 
     pop     rax             ; ilość argumentówśś
-    cmp     rax, 5
+    cmp     rax, 6
     jne     .bad_input
     pop     rax             ; nazwa pliku
     
@@ -76,7 +76,7 @@ _start:
     mov     eax, 3
     mov     ebx, 0
     mov     ecx, str            ; Destination
-    mov     edx, BUFFER_SIZE    ; Length
+    mov     edx, BUFFER_SIZE    ; Length excpected
     int     0x80
 
     mov [e1_len], eax           ; Ile było przeczytanych
