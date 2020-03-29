@@ -66,6 +66,23 @@ TOP_LIMIT       equ 90
     %%end_rev:
 %endmacro
 
+%macro check_key 1
+    mov             rdx, 0
+    %%iterate_key:
+        cmp         byte [rdx + rcx], 0
+        je          %%iterate_end
+        
+        correct_character   byte [%1 + rdx]
+        
+        inc         rdx
+        jmp         %%iterate_key
+    %%wrong_len:
+        jmp        .bad_input
+    %%iterate_end:
+    cmp     rdx, 2
+    jne     %%wrong_len
+%endmacro
+
 ;;;;;;;; END OF MACROS ;;;;;;;;
 
 ;;;;;;;; SECTIONS ;;;;;;;;
@@ -76,13 +93,14 @@ section .data
     l1:     times 42 db 0
     r1:     times 42 db 0
     t1:     times 42 db 0
+    lkey:   times 0 db 0
+    rkey:   times 0 db 0
 
 section .bss
     e1_len resd 1           ; Ile przeczytanych.
 ;    R1:     times 42 db
 ;    T1:     times 42 db
 section .text
-
 
 ;;;;;;;; PROGRAM START ;;;;;;;;
 
@@ -112,7 +130,7 @@ _start:
     print_l t1
     
     pop                             r12             ; zmienna: Key
-;    check_key       r12
+    check_key                       r12
 
 .main_loop:
     ;; CZYTANIE loopem.
