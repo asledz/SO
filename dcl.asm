@@ -118,6 +118,8 @@ nop
 
 
 %macro code_letter 1 ;; codes the letter stored in r14b
+    correct_character           r13b
+
     code_letter_with_Q          r13b
     code_letter_with_rotor      r9
     code_letter_with_Q_reverse  r13b
@@ -206,6 +208,7 @@ _start:
     mov             ecx, str
     int             0x80
 
+    ;; CZY TO KONIEC? wczytywania
     cmp     edx, BUFFER_SIZE
     je      .main_loop
     jmp     .end_program
