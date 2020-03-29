@@ -105,7 +105,20 @@ TOP_LIMIT       equ 90
 %endmacro
 
 %macro code_letter_with_Q 1
-nop
+    mov     dl, r14b
+    add     dl, %1 ;increase o key
+    sub     dl, DOWN_LIMIT
+    sub     dl, DOWN_LIMIT
+
+    %%needs_modulo:
+    cmp     dl, 42
+    jbe     %%dont_need_modulo
+    sub     dl, 42
+    jmp     %%needs_modulo
+
+    %%dont_need_modulo:
+    add     dl, DOWN_LIMIT
+    mov     r14b, dl
 %endmacro
 
 %macro code_letter_with_Q_reverse 1
@@ -113,7 +126,7 @@ nop
 %endmacro
 
 %macro code_letter_with_rotor 1
-nop
+   nop
 %endmacro
 
 
