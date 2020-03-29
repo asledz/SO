@@ -58,7 +58,7 @@ section .text
 _start:
 
     pop     rax             ; ilość argumentówśś
-    cmp     rax, 6
+    cmp     rax, 2
     jne     .bad_input
     pop     rax             ; nazwa pliku
     
