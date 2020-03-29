@@ -97,16 +97,19 @@ _start:
     pop                             r8              ; permutacja L
     correct_permutation             r8
     create_reverse_permutation      r8, l1
+    print_l l1
     
     ;; R
     pop                             r9              ; permutacja R
     correct_permutation             r9
     create_reverse_permutation      r9, r1
+    print_l r1
     
     ;; T
     pop                             r10             ; permutacja T
     correct_permutation             r10
     create_reverse_permutation      r10, t1
+    print_l t1
     
     pop                             r12             ; zmienna: Key
 ;    check_key       r12
