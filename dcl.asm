@@ -211,7 +211,6 @@ _start:
         cmp                 r15, [e1_len]
         je                  .end_small_loop
     .end_small_loop:
-    end_with_code [r15]
     ;; tyle wczytano znaków
 
     ;; WYPISZ POPRAWIONY STRING
