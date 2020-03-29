@@ -197,15 +197,16 @@ _start:
         je                  .end_small_loop
     .end_small_loop:
     
-    mov     [e1_len], eax
+    ;; tyle wczytano znaków
 
+    ;; WYPISZ POPRAWIONY STRING
+    mov             edx, eax
     mov             eax, 4
     mov             ebx, 1
     mov             ecx, str
-    mov             edx, e1_len
     int             0x80
 
-    cmp     [e1_len], edx
+    cmp     edx, BUFFER_SIZE
     je      .main_loop
     jmp     .end_program
 
