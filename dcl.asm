@@ -1,4 +1,4 @@
-;; STAŁE
+;;;;;;;; CONSTANTS ;;;;;;;;
 
 BUFFER_SIZE     equ 10
 DOWN_LIMIT      equ 49
@@ -22,38 +22,62 @@ TOP_LIMIT       equ 90
     jg      .bad_inital_check2
 %endmacro
 
+
 %macro correct_permutation 1
     ; CALCULATE LENGTH
     mov                 rdx, %1         ;argument
     mov                 rcx, 0          ;długość
-    .iterate_length:
+    %%iterate_length:
         cmp                 byte [rdx + rcx], 0
-        je                  .end_length
+        je                  %%end_length
         correct_character   byte [rdx + rcx] ;; check wheter caracter is correct
         inc                 rcx
-        jmp                 .iterate_length
-    .end_length:
+        jmp                 %%iterate_length
+    %%end_length:
     
     ; LENGTH INCORRECT
     cmp                 rcx, 42
     jne                 .bad_inital_check
-    
 %endmacro
 
-;; START OF THE PROGRAM
+%macro create_reverse_permutation 2
+    mov             rdx, 0
+    %%iterate_rev:
+        cmp         rdx, 42             ; End of the loop.
+        je          %%end_rev
+        
+        movzx       rcx, byte [%1 + rdx]
+        sub         rcx, DOWN_LIMIT
+        cmp         byte [%2 + rcx], 43
+        jne         .bad_input_4
+        
+        mov         rax, [%1 + rdx]
+        mov         [%2 + rcx], rax
 
+        inc         rdx
+        jmp         %%iterate_rev
+    %%end_rev:
+%endmacro
 
+;;;;;;;; END OF MACROS ;;;;;;;;
+
+;;;;;;;; SECTIONS ;;;;;;;;
 global _start
-
 
 section .data
     str:    times BUFFER_SIZE db 0 ; alokuję miejsce na string.
+    l1:     times 42 db 43
+    r1:     times 42 db 43
+    t1:     times 42 db 43
 
 section .bss
     e1_len resd 1           ; Ile przeczytanych.
-    N: resd 1
-
+;    R1:     times 42 db
+;    T1:     times 42 db
 section .text
+
+
+;;;;;;;; PROGRAM START ;;;;;;;;
 
 _start:
 
@@ -62,17 +86,26 @@ _start:
     jne     .bad_input
     pop     rax             ; nazwa pliku
     
-    pop     r8              ; permutacja L
-    correct_permutation   r8
-    pop     r9              ; permutacja R
-;    check_permutation   r9
-    pop     r10             ; permutacja T
-;    check_permutation   r10
-    pop     r12             ; zmienna: Key
+    ;; L
+    pop                             r8              ; permutacja L
+    correct_permutation             r8
+    create_reverse_permutation      r8, l1
+    
+    ;; R
+    pop                             r9              ; permutacja R
+    correct_permutation             r9
+    create_reverse_permutation      r9, r1
+    
+    ;; T
+    pop                             r10             ; permutacja T
+    correct_permutation             r10
+    create_reverse_permutation      r10, t1
+    
+    pop                             r12             ; zmienna: Key
 ;    check_key       r12
 
 .main_loop:
-    ;; CZYTANIE
+    ;; CZYTANIE loopem.
     mov     eax, 3
     mov     ebx, 0
     mov     ecx, str            ; Destination
@@ -99,3 +132,6 @@ _start:
  
 .bad_inital_check2:
     end_with_code   3
+    
+.bad_input_4:
+    end_with_code   4
