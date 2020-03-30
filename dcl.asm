@@ -7,8 +7,6 @@
 ;; r15 iterator po słówku
 ;; r14b znak do zakodzenia
 
-
-
 ;;;;;;;; CONSTANTS ;;;;;;;;
 
 BUFFER_SIZE     equ 10
@@ -167,7 +165,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 
 
 %macro code_letter 1 ;; codes the letter stored in r14b
-;    correct_character           r14b
+    correct_character           r14b
 
 ;    code_letter_with_Q          r13b
 ;    code_letter_with_rotor      r9
