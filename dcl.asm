@@ -231,7 +231,7 @@ _start:
     mov                             r13b, byte [r12 + 1]
     mov                             r12b, byte [r12]
 
-.main_loop:
+main_loop:
     mov     rax, 0
     mov     rdi, 0
     mov     rsi, str
@@ -244,7 +244,7 @@ _start:
         code_letter         0
         mov                 byte [str + r15], r14b
         inc                 r15
-        cmp                 byte[str + r15], 0
+        cmp                 byte    [str + r15], 0
         je                  .end_small_loop
         jmp                 .small_loop
     .end_small_loop:
@@ -258,7 +258,7 @@ _start:
     
     ;; CZY TO KONIEC? wczytywania
     cmp     edx, BUFFER_SIZE
-    je      .main_loop
+    je      main_loop
     jmp     .end_program
 
 
