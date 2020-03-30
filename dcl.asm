@@ -21,7 +21,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro end_with_code 1
     mov     eax, 60
     mov     rdi, %1
-    int     0x80
+    syscall
 %endmacro
 
 ; checks if character is correct
