@@ -219,9 +219,21 @@ _start:
     correct_permutation             r8
     create_reverse_permutation      r8, l1
     
+    mov             rdx, 42
+    mov             rax, 1
+    mov             rdi, 1
+    mov             rsi, l1
+    syscall
+    
     pop                             r9              ; permutacja R
     correct_permutation             r9
     create_reverse_permutation      r9, r1
+    
+    mov             rdx, 42
+    mov             rax, 1
+    mov             rdi, 1
+    mov             rsi, r1
+    syscall
     
     pop                             r10             ; permutacja T
     correct_permutation             r10
