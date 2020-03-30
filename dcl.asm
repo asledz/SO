@@ -1,6 +1,6 @@
-;; r8   -> L permutacja
-;; r9   -> R permutacja
-;; r10  -> T permutacja
+;; r8   -> L permutacja l1
+;; r9   -> R permutacja r1
+;; r10  -> T permutacja t1
 ;; r12b -> klucz L
 ;; r13b -> klucz R
 ;; r15  -> iterator po słówku
@@ -122,7 +122,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro code_letter_with_Q 1
     mov     dl, r14b
     sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
-    add     dl, %1              ;increase o key
+    add     dl, %1              ;increase o key np '5' '5'-'1'
     sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
@@ -132,8 +132,8 @@ TOP_LIMIT       equ 90   ; 'Z'
     jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    add     dl, DOWN_LIMIT
-    dec     dl
+    add     dl, DOWN_LIMIT // ('literka' - '1' + 'key' - '1')%42 +'1'
+;    dec     dl
     mov     r14b, dl
 %endmacro
 
@@ -171,22 +171,22 @@ TOP_LIMIT       equ 90   ; 'Z'
     correct_character           r14b
 
     code_letter_with_Q          r13b
-    code_letter_with_rotor      r9
-    code_letter_with_Q_reverse  r13b
-
-    code_letter_with_Q          r12b
-    code_letter_with_rotor      r8
-    code_letter_with_Q_reverse  r12b
-
-    code_letter_with_rotor      r10
-    
-    code_letter_with_Q          r12b
-    code_letter_with_rotor      l1
-    code_letter_with_Q_reverse  r12b
-
-    code_letter_with_Q          r13b
-    code_letter_with_rotor      r1
-    code_letter_with_Q_reverse  r13b
+;    code_letter_with_rotor      r9 ;; R
+;    code_letter_with_Q_reverse  r13b
+;
+;    code_letter_with_Q          r12b
+;    code_letter_with_rotor      r8 ;; L
+;    code_letter_with_Q_reverse  r12b
+;
+;    code_letter_with_rotor      r10 ;; T
+;
+;    code_letter_with_Q          r12b
+;    code_letter_with_rotor      l1 ;; L^-1
+;    code_letter_with_Q_reverse  r12b
+;
+;    code_letter_with_Q          r13b
+;    code_letter_with_rotor      r1 ;; R^-1
+;    code_letter_with_Q_reverse  r13b
 
 %endmacro
 
