@@ -254,8 +254,8 @@ _start:
     mov             rax, 1
     mov             rdi, 1
     mov             rsi, str
-    int             0x80
-
+    syscall
+    
     ;; CZY TO KONIEC? wczytywania
     cmp     edx, BUFFER_SIZE
     je      .main_loop
