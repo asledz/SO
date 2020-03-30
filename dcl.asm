@@ -2,17 +2,14 @@ BUFFER_SIZE     equ 10
 DOWN_LIMIT      equ 49
 TOP_LIMIT       equ 90
 
-
-;; MACROS
-
-; ends program with given code
+; Ends program with given code.
 %macro end_with_code 1
-    mov     eax, 60
-    mov     rdi, %1
+    mov         eax, 60
+    mov         rdi, %1
     syscall
 %endmacro
 
-; checks if character is correct
+; Checks, if given character c meets '1' <= c <= 'Z'.
 %macro correct_character 1
     cmp     %1, DOWN_LIMIT
     jl      bad_inital_check2
@@ -20,15 +17,14 @@ TOP_LIMIT       equ 90
     jg      bad_inital_check2
 %endmacro
 
-;; Sprawdza, czy dana permutacja ma poprawne znaki oraz poprawną długość
+;; Checks, if given permutation has length 42 and contains only allowed characers.
 %macro correct_permutation 1
-    ; CALCULATE LENGTH
-    mov                 rdx, %1         ;argument
-    mov                 rcx, 0          ;długość
+    mov                 rdx, %1         ; argument
+    mov                 rcx, 0          ; length
     %%iterate_length:
         cmp                 byte [rdx + rcx], 0
         je                  %%end_length
-        correct_character   byte [rdx + rcx] ;; check wheter caracter is correct
+        correct_character   byte [rdx + rcx]
         inc                 rcx
         jmp                 %%iterate_length
     %%end_length:
@@ -37,11 +33,11 @@ TOP_LIMIT       equ 90
     jne                 bad_inital_check
 %endmacro
 
-;; Tworzy odwrotną permutację, przy okazji jeśli nie jest permutacją, zwraca kod będu
+;; Creates reversed permutation.
 %macro create_reverse_permutation 2
     mov             rdx, 0
     %%iterate_rev:
-        cmp         rdx, 42             ; End of the loop.
+        cmp         rdx, 42
         je          %%end_rev
 
         movzx ecx, byte [%1 + rdx] ; ecx is currently processed value
@@ -130,11 +126,10 @@ TOP_LIMIT       equ 90
     %%end_rotors:
 %endmacro
 
-; Koduje literkę, trzymaną za na r14b za pomocą Q(dolny indeks w %1)
 %macro code_letter_with_Q 1
     mov     dl, r14b
-    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
-    add     dl, %1              ;increase o key np '5' '5'-'1'
+    sub     dl, DOWN_LIMIT
+    add     dl, %1
     sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
@@ -144,17 +139,14 @@ TOP_LIMIT       equ 90
     jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    add     dl, DOWN_LIMIT // ('literka' - '1' + 'key' - '1')%42 +'1'
-;    dec     dl
+    add     dl, DOWN_LIMIT
     mov     r14b, dl
 %endmacro
 
-; koduje jak wyżej, Q^(-1)
 %macro code_letter_with_Q_reverse 1
     mov     dl, r14b
-    add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
-    sub     dl, %1              ;decrease o key    'a' - '1' - ('key' - '1')
-
+    add     dl, 42
+    sub     dl, %1
 
     %%needs_modulo:
     cmp     dl, 42
@@ -175,59 +167,51 @@ TOP_LIMIT       equ 90
 %endmacro
 
 
-%macro code_letter 1 ;; codes the letter stored in r14b
+%macro code_letter 1
     change_rotors  0
 
     correct_character           r14b
 
     code_letter_with_Q          r13b
-    code_letter_with_rotor      r9 ;; R
+    code_letter_with_rotor      r9
     code_letter_with_Q_reverse  r13b
 
     code_letter_with_Q          r12b
-    code_letter_with_rotor      r8 ;; L
+    code_letter_with_rotor      r8
     code_letter_with_Q_reverse  r12b
 
-    code_letter_with_rotor      r10 ;; T
+    code_letter_with_rotor      r10
 
     code_letter_with_Q          r12b
-    code_letter_with_rotor      l1 ;; L^-1
+    code_letter_with_rotor      l1
     code_letter_with_Q_reverse  r12b
 
     code_letter_with_Q          r13b
-    code_letter_with_rotor      r1 ;; R^-1
+    code_letter_with_rotor      r1
     code_letter_with_Q_reverse  r13b
-
 %endmacro
 
-;;;;;;;; END OF MACROS ;;;;;;;;
 
-;;;;;;;; SECTIONS ;;;;;;;;
 global _start
 
 section .bss
-; arrays holding informations about rotors
 str:   resb BUFFER_SIZE+1
 
 
 section .data
-    ;str:    times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
     l1:     times 42 db 0xff
     r1:     times 42 db 0xff
     t1:     times 42 db 0xff
 
-section .bss
-;    e1_len resd 1           ; Ile przeczytanych.
 section .text
 
-;;;;;;;; PROGRAM START ;;;;;;;;
 
 _start:
 
-    pop     rax             ; ilość argumentówśś
+    pop     rax
     cmp     rax, 5
     jne     bad_input
-    pop     rax             ; nazwa pliku
+    pop     rax
 
     pop                             r8              ; permutacja L
     correct_permutation             r8
@@ -256,27 +240,27 @@ main_loop:
 
     mov     r15, 0
     mov     rcx, rax
+    
     cmp rax, 0
     je end_program
+    
     small_loop:
+        cmp                 r15, rcx
+        je                  end_small_loop
         mov                 r14b, byte [str + r15]
         code_letter         0
         mov                 byte [str + r15], r14b
         inc                 r15
-        cmp                 r15, rcx
-        je                  end_small_loop
         jmp                 small_loop
     end_small_loop:
 
     mov     rax, rcx
-    ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
     mov             rax, 1
     mov             rdi, 1
     mov             rsi, str
     syscall
 
-    ;; CZY TO KONIEC? wczytywania
     cmp     rdx, BUFFER_SIZE
     je      main_loop
     jmp     end_program
