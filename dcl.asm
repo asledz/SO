@@ -27,9 +27,9 @@ TOP_LIMIT       equ 90   ; 'Z'
 ; checks if character is correct
 %macro correct_character 1
     cmp     %1, DOWN_LIMIT
-    jl      .bad_inital_check2
+    jl      bad_inital_check2
     cmp     %1, TOP_LIMIT
-    jg      .bad_inital_check2
+    jg      bad_inital_check2
 %endmacro
 
 ;; Sprawdza, czy dana permutacja ma poprawne znaki oraz poprawną długość
@@ -46,7 +46,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     %%end_length:
     
     cmp                 rcx, 42
-    jne                 .bad_inital_check
+    jne                 bad_inital_check
 %endmacro
 
 ;; Tworzy odwrotną permutację, przy okazji jeśli nie jest permutacją, zwraca kod będu
@@ -59,7 +59,7 @@ TOP_LIMIT       equ 90   ; 'Z'
         movzx       rcx, byte [%1 + rdx]
         sub         rcx, DOWN_LIMIT
         cmp         byte [%2 + rcx], 0
-        jne         .bad_input_4
+        jne         bad_input_4
         
         movzx       rax, byte [%1 + rdx]
         mov         byte [%2 + rcx], al
@@ -82,7 +82,7 @@ TOP_LIMIT       equ 90   ; 'Z'
         inc         rdx
         jmp         %%iterate_key
     %%wrong_len:
-        jmp        .bad_input
+        jmp        bad_input
     %%iterate_end:
     cmp     rdx, 2
     jne     %%wrong_len
@@ -211,7 +211,7 @@ _start:
 
     pop     rax             ; ilość argumentówśś
     cmp     rax, 5
-    jne     .bad_input
+    jne     bad_input
     pop     rax             ; nazwa pliku
     
     pop                             r8              ; permutacja L
@@ -239,15 +239,15 @@ main_loop:
     syscall
     
     mov     r15, 0
-    .small_loop:
+    small_loop:
         mov                 r14b, byte [str + r15]
         code_letter         0
         mov                 byte [str + r15], r14b
         inc                 r15
         cmp                 byte    [str + r15], 0
-        je                  .end_small_loop
-        jmp                 .small_loop
-    .end_small_loop:
+        je                  end_small_loop
+        jmp                 small_loop
+    end_small_loop:
 
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
@@ -259,26 +259,26 @@ main_loop:
     ;; CZY TO KONIEC? wczytywania
     cmp     edx, BUFFER_SIZE
     je      main_loop
-    jmp     .end_program
+    jmp     end_program
 
 
-.end_program:
+end_program:
     
-.normal_exit:
+normal_exit:
     end_with_code   0
 
-.bad_input:
+bad_input:
     end_with_code   1
     
-.bad_inital_check:
+bad_inital_check:
     end_with_code   2
  
-.bad_inital_check2:
+bad_inital_check2:
     end_with_code   3
     
-.bad_input_4:
+bad_input_4:
     end_with_code   4
     
-.bad_input_5:
+bad_input_5:
 end_with_code   5
 
