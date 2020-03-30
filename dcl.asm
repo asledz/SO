@@ -126,7 +126,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 
     %%needs_modulo:
     cmp     dl, 42
-    jbe     %%dont_need_modulo
+    jb      %%dont_need_modulo
     sub     dl, 42
     jmp     %%needs_modulo
 
