@@ -41,7 +41,7 @@ TOP_LIMIT       equ 90   ; 'Z'
         inc                 rcx
         jmp                 %%iterate_length
     %%end_length:
-    
+
     cmp                 rcx, 42
     jne                 bad_inital_check
 %endmacro
@@ -52,19 +52,38 @@ TOP_LIMIT       equ 90   ; 'Z'
     %%iterate_rev:
         cmp         rdx, 42             ; End of the loop.
         je          %%end_rev
-        
-        movzx       rcx, byte [%1 + rdx]
-        sub         rcx, DOWN_LIMIT
-        cmp         byte [%2 + rcx], 0
-        jne         bad_input_4
-        
-        movzx       rax, byte [%1 + rdx]
-        mov         byte [%2 + rcx], al
-        
+
+        movzx ecx, byte [%1 + rdx] ; ecx is currently processed value
+        sub ecx, DOWN_LIMIT
+        ; if destination[ecx] != 0xff source must invalid, exit failure
+        cmp byte [%2 + rcx], 0xff
+        jne bad_input_4
+        mov rax, rdx
+        add rax, DOWN_LIMIT
+        mov [%2 + rcx], al
+
         inc         rdx
         jmp         %%iterate_rev
     %%end_rev:
 %endmacro
+
+%macro validate_cycles 1
+    xor eax, eax ; use eax as loop counter
+%%loop:
+
+    movzx ecx, byte [%1 + rax] ; load src[counter]
+    movzx edx, byte [%1 + rcx - DOWN_LIMIT] ; load src[src[counter]]
+
+    cmp eax, edx ; assert that src[src[counter]] == counter
+    jne bad_input
+    cmp eax, ecx ; assert that src[counter] != counter
+    je bad_input
+
+    inc eax
+    cmp eax, 42
+    jne %%loop
+%endmacro
+
 
 ;; Sprawdza czy klucze są poprawne i jest ich odpowiednia liczba(dostaje dwa klucze w 1, jak parametr na wejścius).
 %macro check_key 1
@@ -73,9 +92,9 @@ TOP_LIMIT       equ 90   ; 'Z'
     %%iterate_key:
         cmp         byte [rdx + rcx], 0
         je          %%iterate_end
-        
+
         correct_character   byte [rcx + rdx]
-        
+
         inc         rdx
         jmp         %%iterate_key
     %%wrong_len:
@@ -91,7 +110,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     add         r13b, 1 ; tutaj trzymam R key
     cmp         r13b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
     je          %%fix_rotor_r       ;napraw
-    
+
     %%check_rotor_l:
     cmp         r13b, 'L'
     je          %%move_rotor_l      ;ruszam jesli l
@@ -100,21 +119,21 @@ TOP_LIMIT       equ 90   ; 'Z'
     cmp         r13b, 'T'
     je          %%move_rotor_l      ;ruszam jesli t
     jmp         %%end_rotors        ;koncze wszystko
-    
+
     %%fix_rotor_r:
     mov         r13b, DOWN_LIMIT    ;musze ustawić go na dolny limit
     jmp         %%check_rotor_l      ; sprawdzam lke
-    
+
     %%move_rotor_l:
     add         r12b, 1
     cmp         r12b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
     je          %%fix_rotor_l
     jmp         %%end_rotors
-    
+
     %%fix_rotor_l:
     mov         r12b, DOWN_LIMIT
     jmp         %%end_rotors
-    
+
     %%end_rotors:
 %endmacro
 
@@ -142,8 +161,8 @@ TOP_LIMIT       equ 90   ; 'Z'
     mov     dl, r14b
     add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
     sub     dl, %1              ;decrease o key    'a' - '1' - ('key' - '1')
-    
-    
+
+
     %%needs_modulo:
     cmp     dl, 42
     jl      %%dont_need_modulo
@@ -165,7 +184,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 
 %macro code_letter 1 ;; codes the letter stored in r14b
     change_rotors  0
-    
+
     correct_character           r14b
 
     code_letter_with_Q          r13b
@@ -193,11 +212,16 @@ TOP_LIMIT       equ 90   ; 'Z'
 ;;;;;;;; SECTIONS ;;;;;;;;
 global _start
 
+section .bss
+; arrays holding informations about rotors
+str:   resb BUFFER_SIZE+1
+
+
 section .data
-    str:    times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
-    l1:     times 42 db 0
-    r1:     times 42 db 0
-    t1:     times 42 db 0
+    ;str:    times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
+    l1:     times 42 db 0xff
+    r1:     times 42 db 0xff
+    t1:     times 42 db 0xff
 
 section .bss
 ;    e1_len resd 1           ; Ile przeczytanych.
@@ -211,19 +235,20 @@ _start:
     cmp     rax, 5
     jne     bad_input
     pop     rax             ; nazwa pliku
-    
+
     pop                             r8              ; permutacja L
     correct_permutation             r8
     create_reverse_permutation      r8, l1
-    
+
     pop                             r9              ; permutacja R
     correct_permutation             r9
     create_reverse_permutation      r9, r1
-    
+
     pop                             r10             ; permutacja T
     correct_permutation             r10
     create_reverse_permutation      r10, t1
-    
+    validate_cycles                 r10
+
     pop                             r12             ; zmienna: Key
     check_key                       r12
     movzx                           r13, byte [r12 + 1]
@@ -235,7 +260,7 @@ main_loop:
     mov     rsi, str
     mov     rdx, BUFFER_SIZE
     syscall
-    
+
     mov     r15, 0
     mov     rcx, rax
     small_loop:
@@ -247,7 +272,7 @@ main_loop:
         je                  end_small_loop
         jmp                 small_loop
     end_small_loop:
-    
+
     mov     rax, rcx
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
@@ -255,29 +280,29 @@ main_loop:
     mov             rdi, 1
     mov             rsi, str
     syscall
-    
+
     ;; CZY TO KONIEC? wczytywania
     cmp     rdx, BUFFER_SIZE
     je      main_loop
     jmp     end_program
 
 end_program:
-    
+
 normal_exit:
     end_with_code   0
 
 bad_input:
     end_with_code   1
-    
+
 bad_inital_check:
-    end_with_code   2
- 
+    end_with_code   1
+
 bad_inital_check2:
-    end_with_code   3
-    
+    end_with_code   1
+
 bad_input_4:
-    end_with_code   4
-    
+    end_with_code   1
+
 bad_input_5:
-end_with_code   5
+end_with_code   1
 
