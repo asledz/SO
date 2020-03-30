@@ -32,7 +32,7 @@ TOP_LIMIT       equ 90
     jg      .bad_inital_check2
 %endmacro
 
-
+;; Sprawdza, czy dana permutacja ma poprawne znaki oraz poprawną długość
 %macro correct_permutation 1
     ; CALCULATE LENGTH
     mov                 rdx, %1         ;argument
@@ -49,6 +49,7 @@ TOP_LIMIT       equ 90
     jne                 .bad_inital_check
 %endmacro
 
+;; Tworzy odwrotną permutację, przy okazji jeśli nie jest permutacją, zwraca kod będu
 %macro create_reverse_permutation 2
     mov             rdx, 0
     %%iterate_rev:
@@ -68,6 +69,7 @@ TOP_LIMIT       equ 90
     %%end_rev:
 %endmacro
 
+;; Sprawdza czy klucze są poprawne i jest ich odpowiednia liczba(dostaje dwa klucze w 1, jak parametr na wejścius).
 %macro check_key 1
     mov             rdx, 0
     mov             rcx, %1
@@ -86,6 +88,8 @@ TOP_LIMIT       equ 90
     jne     %%wrong_len
 %endmacro
 
+
+;; PRZERZUCA KLUCZE - trzymane na r12b(l_key) oraz r13b(r_key). Argument nic nie robi, psuło się macro bez niego
 %macro change_rotors 1
     add         r13b, 1 ; tutaj trzymam R key
     cmp         r13b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
@@ -115,6 +119,7 @@ TOP_LIMIT       equ 90
     %%end_rotors:
 %endmacro
 
+; Koduje literkę, trzymaną za na r14b za pomocą Q(dolny indeks w %1)
 %macro code_letter_with_Q 1
     mov     dl, r14b
     add     dl, %1              ;increase o key
@@ -132,6 +137,7 @@ TOP_LIMIT       equ 90
     mov     r14b, dl
 %endmacro
 
+; koduje jak wyżej, Q^(-1)
 %macro code_letter_with_Q_reverse 1
     mov     dl, r14b
     add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
@@ -150,6 +156,8 @@ TOP_LIMIT       equ 90
     mov     r14b, dl
 %endmacro
 
+
+; Koduje za pomocą bębna w %1 (nie działa w ogóle)
 %macro code_letter_with_rotor 1
    mov      rdx, 0
    mov      dl, r14b
@@ -233,7 +241,7 @@ _start:
     mov     r15, 0
     .small_loop:
         mov                 r14b, byte [str + r15]
-        code_letter         0
+;        code_letter         0
         mov                 [str + r15], r14b
         inc                 r15
         cmp                 byte[str + r15], 0
