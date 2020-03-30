@@ -187,7 +187,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 ;    code_letter_with_rotor      r1
 ;    code_letter_with_Q_reverse  r13b
     
-    change_rotors  0
+;    change_rotors  0
 %endmacro
 
 ;;;;;;;; END OF MACROS ;;;;;;;;
