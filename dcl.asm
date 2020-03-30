@@ -1,157 +1,167 @@
+;;; DLA DEBUGUJĄCEGO CO GDZIE TRZYMAM
 ;; r8   -> L permutacja
 ;; r9   -> R permutacja
 ;; r10  -> T permutacja
 ;; r12b -> klucz L
 ;; r13b -> klucz R
 ;; r15  -> iterator po słówku
-;; r14b -> znak do zakodzenia
+;; r14b  ->znak do zakodzenia
 
 
 BUFFER_SIZE     equ 10
-DOWN_LIMIT      equ 49
-TOP_LIMIT       equ 90
+DOWN_LIMIT      equ 49   ; '1'
+TOP_LIMIT       equ 90   ; 'Z'
 
 ;; MACROS
 
-%macro end_with_code 1                                  ; Ends program with given code.
-    mov                    eax, 60
-    mov                    rdi, %1
+; ends program with given code
+%macro end_with_code 1
+    mov     eax, 60
+    mov     rdi, %1
     syscall
 %endmacro
 
-%macro correct_character 1                          ; Checks, if letter is okey.
-    cmp                    %1, DOWN_LIMIT
-    jl                     bad_inital_check2
-    cmp                    %1, TOP_LIMIT
-    jg                     bad_inital_check2
+; checks if character is correct
+%macro correct_character 1
+    cmp     %1, DOWN_LIMIT
+    jl      bad_inital_check2
+    cmp     %1, TOP_LIMIT
+    jg      bad_inital_check2
 %endmacro
 
-%macro correct_permutation 1                        ; Checks, if permutation consists of okay characters.
-    mov                   rdx, %1
-    mov                   rcx, 0
-    
+;; Sprawdza, czy dana permutacja ma poprawne znaki oraz poprawną długość
+%macro correct_permutation 1
+    ; CALCULATE LENGTH
+    mov                 rdx, %1         ;argument
+    mov                 rcx, 0          ;długość
     %%iterate_length:
-    cmp                   byte [rdx + rcx], 0
-    je                    %%end_length
-    correct_character     byte [rdx + rcx]
-    inc                   rcx
-    jmp                   %%iterate_length
+        cmp                 byte [rdx + rcx], 0
+        je                  %%end_length
+        correct_character   byte [rdx + rcx] ;; check wheter caracter is correct
+        inc                 rcx
+        jmp                 %%iterate_length
     %%end_length:
     
-    cmp                   rcx, 42
-    jne                   bad_inital_check
+    cmp                 rcx, 42
+    jne                 bad_inital_check
 %endmacro
 
-%macro create_reverse_permutation 2                 ; Creates inversed permutation. Checks, if is a permutation.
-    mov                   rdx, 0
+;; Tworzy odwrotną permutację, przy okazji jeśli nie jest permutacją, zwraca kod będu
+%macro create_reverse_permutation 2
+    mov             rdx, 0
     %%iterate_rev:
-    cmp                   rdx, 42
-    je                    %%end_rev
-
-    movzx                 rcx, byte [%1 + rdx]
-    sub                   rcx, DOWN_LIMIT
-    cmp                   byte [%2 + rcx], 0
-    jne                   bad_input_4
+        cmp         rdx, 42             ; End of the loop.
+        je          %%end_rev
         
-    movzx                 rax, byte [%1 + rdx]
-    mov                   byte [%2 + rcx], al
-    
-    inc                   rdx
-    jmp                   %%iterate_rev
+        movzx       rcx, byte [%1 + rdx]
+        sub         rcx, DOWN_LIMIT
+        cmp         byte [%2 + rcx], 0
+        jne         bad_input_4
+        
+        movzx       rax, byte [%1 + rdx]
+        mov         byte [%2 + rcx], al
+        
+        inc         rdx
+        jmp         %%iterate_rev
     %%end_rev:
 %endmacro
 
-%macro check_key 1                                  ; Checks, if given keys are correct.
-    mov                   rdx, 0
-    mov                   rcx, %1
-    
+;; Sprawdza czy klucze są poprawne i jest ich odpowiednia liczba(dostaje dwa klucze w 1, jak parametr na wejścius).
+%macro check_key 1
+    mov             rdx, 0
+    mov             rcx, %1
     %%iterate_key:
-    cmp                   byte [rdx + rcx], 0
-    je                    %%iterate_end
-    correct_character     byte [rcx + rdx]
-    inc                   rdx
-    jmp                   %%iterate_key
+        cmp         byte [rdx + rcx], 0
+        je          %%iterate_end
+        
+        correct_character   byte [rcx + rdx]
+        
+        inc         rdx
+        jmp         %%iterate_key
     %%wrong_len:
-    jmp                   bad_input
+        jmp        bad_input
     %%iterate_end:
-    
-    cmp                   rdx, 2
-    jne                   %%wrong_len
+    cmp     rdx, 2
+    jne     %%wrong_len
 %endmacro
 
 
-%macro change_rotors 1                              ; Switches the rotors.
-    add                   r13b, 1
-    cmp                   r13b, TOP_LIMIT+1
-    je                    %%fix_rotor_r
+;; PRZERZUCA KLUCZE - trzymane na r12b(l_key) oraz r13b(r_key). Argument nic nie robi, psuło się macro bez niego
+%macro change_rotors 1
+    add         r13b, 1 ; tutaj trzymam R key
+    cmp         r13b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
+    je          %%fix_rotor_r       ;napraw
     
     %%check_rotor_l:
-    cmp                  r13b, 'L'
-    je                   %%move_rotor_l
-    cmp                  r13b, 'R'
-    je                   %%move_rotor_l
-    cmp                  r13b, 'T'
-    je                   %%move_rotor_l
-    jmp                  %%end_rotors
+    cmp         r13b, 'L'
+    je          %%move_rotor_l      ;ruszam jesli l
+    cmp         r13b, 'R'
+    je          %%move_rotor_l      ;ruszam jesli r
+    cmp         r13b, 'T'
+    je          %%move_rotor_l      ;ruszam jesli t
+    jmp         %%end_rotors        ;koncze wszystko
     
     %%fix_rotor_r:
-    mov                 r13b, DOWN_LIMIT
-    jmp                 %%check_rotor_l
+    mov         r13b, DOWN_LIMIT    ;musze ustawić go na dolny limit
+    jmp         %%check_rotor_l      ; sprawdzam lke
     
     %%move_rotor_l:
-    mov                 r12b, DOWN_LIMIT
-    jmp                 %%end_rotors
+    mov         r12b, DOWN_LIMIT
+    jmp         %%end_rotors
     
     %%fix_rotor_l:
-    mov                 r12b, DOWN_LIMIT
-    jmp                 %%end_rotors
+    mov         r12b, DOWN_LIMIT
+    jmp         %%end_rotors
     
     %%end_rotors:
 %endmacro
 
-%macro code_letter_with_Q 1                       ; Creates Q permutation with given key.
-    mov                 dl, r14b
-    add                 dl, %1
-    sub                 dl, DOWN_LIMIT
-    sub                 dl, DOWN_LIMIT
+; Koduje literkę, trzymaną za na r14b za pomocą Q(dolny indeks w %1)
+%macro code_letter_with_Q 1
+    mov     dl, r14b
+    add     dl, %1              ;increase o key
+    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
+    sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
-    cmp                 dl, 42
-    jl                  %%dont_need_modulo
-    sub                 dl, 42
-    jmp                 %%needs_modulo
+    cmp     dl, 42
+    jl      %%dont_need_modulo
+    sub     dl, 42
+    jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    dec                 dl
-    add                 dl, DOWN_LIMIT
-    mov                 r14b, dl
+    dec     dl
+    add     dl, DOWN_LIMIT
+    mov     r14b, dl
 %endmacro
 
-%macro code_letter_with_Q_reverse 1             ; Creates Q^-1 permutation with given key.
-    mov                 dl, r14b
-    add                 dl, 42
-    sub                 dl, %1
-    sub                 dl, DOWN_LIMIT
-    sub                 dl, DOWN_LIMIT
+; koduje jak wyżej, Q^(-1)
+%macro code_letter_with_Q_reverse 1
+    mov     dl, r14b
+    add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
+    sub     dl, %1              ;decrease o key
+    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
+    sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
-    cmp                 dl, 42
-    jl                  %%dont_need_modulo
-    sub                 dl, 42
-    jmp                 %%needs_modulo
+    cmp     dl, 42
+    jbe     %%dont_need_modulo
+    sub     dl, 42
+    jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    dec                 dl
-    add                 dl, DOWN_LIMIT
-    mov                 r14b, dl
+    dec     dl
+    add     dl, DOWN_LIMIT
+    mov     r14b, dl
 %endmacro
 
 
-%macro code_letter_with_rotor 1                 ; Creates permutation with given rotor.
-   mov                  rdx, 0
-   mov                  dl, r14b
-   sub                  dl, DOWN_LIMIT
-   mov                  r14b, byte [%1 + rdx]
+; Koduje za pomocą bębna w %1 (nie działa w ogóle)
+%macro code_letter_with_rotor 1
+   mov      rdx, 0
+   mov      dl, r14b
+   sub      dl, DOWN_LIMIT
+   mov      r14b, byte [%1 + rdx]
 %endmacro
 
 
@@ -179,23 +189,29 @@ TOP_LIMIT       equ 90
     change_rotors  0
 %endmacro
 
+;;;;;;;; END OF MACROS ;;;;;;;;
+
+;;;;;;;; SECTIONS ;;;;;;;;
 global _start
 
 section .data
-    str:                times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
-    l1:                 times 42 db 0
-    r1:                 times 42 db 0
-    t1:                 times 42 db 0
+    str:    times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
+    l1:     times 42 db 0
+    r1:     times 42 db 0
+    t1:     times 42 db 0
 
+section .bss
+;    e1_len resd 1           ; Ile przeczytanych.
 section .text
 
+;;;;;;;; PROGRAM START ;;;;;;;;
 
 _start:
 
-    pop                 rax
-    cmp                 rax, 5
-    jne                 bad_input
-    pop                 rax             ; nazwa pliku
+    pop     rax             ; ilość argumentówśś
+    cmp     rax, 5
+    jne     bad_input
+    pop     rax             ; nazwa pliku
     
     pop                             r8              ; permutacja L
     correct_permutation             r8
@@ -215,28 +231,28 @@ _start:
     mov                             r12b, byte [r12]
 
 main_loop:
-    mov                 rax, 0
-    mov                 rdi, 0
-    mov                 rsi, str
-    mov                 rdx, BUFFER_SIZE
+    mov     rax, 0
+    mov     rdi, 0
+    mov     rsi, str
+    mov     rdx, BUFFER_SIZE
     syscall
     
-    mov                 r15, 0
+    mov     r15, 0
     small_loop:
-    mov                 r14b, byte [str + r15]
-    code_letter         0
-    mov                 byte [str + r15], r14b
-    inc                 r15
-    cmp                 r15, rax
-    je                  end_small_loop
-    jmp                 small_loop
+        mov                 r14b, byte [str + r15]
+        code_letter         0
+        mov                 byte [str + r15], r14b
+        inc                 r15
+        cmp                 r15, rax
+        je                  end_small_loop
+        jmp                 small_loop
     end_small_loop:
     
     ;; WYPISZ POPRAWIONY STRING
-    mov                 rdx, rax
-    mov                 rax, 1
-    mov                 rdi, 1
-    mov                 rsi, str
+    mov             rdx, rax
+    mov             rax, 1
+    mov             rdi, 1
+    mov             rsi, str
     syscall
     
     ;; CZY TO KONIEC? wczytywania
