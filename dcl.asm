@@ -242,7 +242,7 @@ _start:
     .small_loop:
         mov                 r14b, byte [str + r15]
         code_letter         0
-        mov                 [str + r15], r14b
+        mov                 byte [str + r15], r14b
         inc                 r15
         cmp                 byte[str + r15], 0
         je                  .end_small_loop
@@ -252,7 +252,7 @@ _start:
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
     mov             rax, 1
-    mov             rdi, 0
+    mov             rdi, 1
     mov             rsi, str
     int             0x80
 
