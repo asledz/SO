@@ -260,6 +260,7 @@ main_loop:
     ;; CZY TO KONIEC? wczytywania
     cmp     rdx, BUFFER_SIZE
     je      main_loop
+    koniec_skacze:
     jmp     end_program
 
 
