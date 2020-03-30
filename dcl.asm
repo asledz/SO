@@ -157,8 +157,6 @@ TOP_LIMIT       equ 90   ; 'Z'
     mov     r14b, dl
 %endmacro
 
-
-; Koduje za pomocą bębna w %1 (nie działa w ogóle)
 %macro code_letter_with_rotor 1
    mov      rdx, 0
    mov      dl, r14b
@@ -169,6 +167,19 @@ TOP_LIMIT       equ 90   ; 'Z'
 
 %macro code_letter 1 ;; codes the letter stored in r14b
     change_rotors  0
+    
+    mov             rdx, 1
+    mov             rax, 1
+    mov             rdi, 1
+    movzx           rsi, r12b
+    syscall
+    
+    mov             rdx, 1
+    mov             rax, 1
+    mov             rdi, 1
+    movzx           rsi, r13b
+    syscall
+    
     correct_character           r14b
 
     code_letter_with_Q          r13b
@@ -219,21 +230,9 @@ _start:
     correct_permutation             r8
     create_reverse_permutation      r8, l1
     
-    mov             rdx, 42
-    mov             rax, 1
-    mov             rdi, 1
-    mov             rsi, l1
-    syscall
-    
     pop                             r9              ; permutacja R
     correct_permutation             r9
     create_reverse_permutation      r9, r1
-    
-    mov             rdx, 42
-    mov             rax, 1
-    mov             rdi, 1
-    mov             rsi, r1
-    syscall
     
     pop                             r10             ; permutacja T
     correct_permutation             r10
@@ -252,16 +251,18 @@ main_loop:
     syscall
     
     mov     r15, 0
+    mov     rcx, rax
     small_loop:
         mov                 r14b, byte [str + r15]
         code_letter         0
         mov                 byte [str + r15], r14b
         inc                 r15
-        cmp                 r15, rax
+        cmp                 r15, rcx
         je                  end_small_loop
         jmp                 small_loop
     end_small_loop:
     
+    mov     rax, rcx
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
     mov             rax, 1
