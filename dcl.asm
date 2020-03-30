@@ -1,15 +1,6 @@
-;; r8   -> L permutacja l1
-;; r9   -> R permutacja r1
-;; r10  -> T permutacja t1
-;; r12b -> klucz L
-;; r13b -> klucz R
-;; r15  -> iterator po słówku
-;; r14b  ->znak do zakodzenia
-
-
 BUFFER_SIZE     equ 10
-DOWN_LIMIT      equ 49   ; '1'
-TOP_LIMIT       equ 90   ; 'Z'
+DOWN_LIMIT      equ 49
+TOP_LIMIT       equ 90
 
 
 ;; MACROS
@@ -299,14 +290,14 @@ bad_input:
     end_with_code   1
 
 bad_inital_check:
-    end_with_code   1
+    end_with_code   2
 
 bad_inital_check2:
-    end_with_code   1
+    end_with_code   3
 
 bad_input_4:
-    end_with_code   1
+    end_with_code   4
 
 bad_input_5:
-end_with_code   1
+end_with_code   5
 
