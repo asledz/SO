@@ -162,6 +162,7 @@ TOP_LIMIT       equ 90   ; 'Z'
    mov      rdx, 0
    mov      dl, r14b
    sub      dl, DOWN_LIMIT
+   dec      dl
    mov      r14b, byte [%1 + rdx]
 %endmacro
 
