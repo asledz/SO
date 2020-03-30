@@ -233,14 +233,13 @@ _start:
     mov     r15, 0
     .small_loop:
         mov                 r14b, byte [str + r15]
-        code_letter         0
+;        code_letter         0
         mov                 [str + r15], r14b
         inc                 r15
-        cmp                 r15, [e1_len]
+        cmp                 r15, [eax]
         je                  .end_small_loop
         jmp                 .small_loop
     .end_small_loop:
-    ;; tyle wczytano znaków
 
     ;; WYPISZ POPRAWIONY STRING
     mov             edx, eax
