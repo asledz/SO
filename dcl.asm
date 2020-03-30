@@ -141,24 +141,22 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro code_letter_with_Q_reverse 1
     mov     dl, r14b
     add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
-    sub     dl, %1              ;decrease o key
-    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
-    add     dl, DOWN_LIMIT
-
+    sub     dl, %1              ;decrease o key    'a' - '1' - ('key' - '1')
+    
+    
     %%needs_modulo:
     cmp     dl, 42
-    jbe     %%dont_need_modulo ;;; czy tu ok/???
+    jl      %%dont_need_modulo
     sub     dl, 42
     jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    dec     dl
     add     dl, DOWN_LIMIT
     mov     r14b, dl
 %endmacro
 
 %macro code_letter_with_rotor 1
-   mov      rdx, 0
+   xor      rdx, rdx
    mov      dl, r14b
    sub      dl, DOWN_LIMIT
    mov      r14b, byte [%1 + rdx]
