@@ -163,21 +163,21 @@ TOP_LIMIT       equ 90
 
     code_letter_with_Q          r13b
 ;    code_letter_with_rotor      r9
-    code_letter_with_Q_reverse  r13b
+;    code_letter_with_Q_reverse  r13b
 ;
-    code_letter_with_Q          r12b
+;    code_letter_with_Q          r12b
 ;    code_letter_with_rotor      r8
-    code_letter_with_Q_reverse  r12b
+;    code_letter_with_Q_reverse  r12b
 ;
 ;    code_letter_with_rotor      r10
 ;
-    code_letter_with_Q          r12b
+;    code_letter_with_Q          r12b
 ;    code_letter_with_rotor      l1
-    code_letter_with_Q_reverse  r12b
+;    code_letter_with_Q_reverse  r12b
 ;
-    code_letter_with_Q          r13b
+;    code_letter_with_Q          r13b
 ;    code_letter_with_rotor      r1
-    code_letter_with_Q_reverse  r13b
+;    code_letter_with_Q_reverse  r13b
     
     change_rotors  0
 %endmacro
@@ -232,9 +232,9 @@ _start:
     
     mov     r15, 0
     .small_loop:
-;        mov                 r14b, byte [str + r15]
-;        code_letter         0
-;        mov                 [str + r15], r14b
+        mov                 r14b, byte [str + r15]
+        code_letter         0
+        mov                 [str + r15], r14b
         inc                 r15
         cmp                 byte[str + r15], 0
         je                  .end_small_loop
