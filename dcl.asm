@@ -72,12 +72,14 @@ TOP_LIMIT       equ 90   ; 'Z'
 %%loop:
 
     movzx ecx, byte [%1 + rax] ; load src[counter]
-    movzx edx, byte [%1 + rcx - DOWN_LIMIT] ; load src[src[counter]]
+    sub ecx, DOWN_LIMIT
+    movzx edx, byte [%1 + rcx] ; load src[src[counter]]
+    sub edx, DOWN_LIMIT
 
     cmp eax, edx ; assert that src[src[counter]] == counter
-    jne bad_input_xxxx
+    jne bad_input
     cmp eax, ecx ; assert that src[counter] != counter
-    je bad_input_xxxx
+    je bad_input
 
     inc eax
     cmp eax, 42
@@ -263,6 +265,8 @@ main_loop:
 
     mov     r15, 0
     mov     rcx, rax
+    cmp rax, 0
+    je end_program
     small_loop:
         mov                 r14b, byte [str + r15]
         code_letter         0
@@ -305,8 +309,4 @@ bad_input_4:
 
 bad_input_5:
 end_with_code   1
-
-
-bad_input_xxxx:
-end_with_code   7
 
