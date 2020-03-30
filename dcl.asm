@@ -1,3 +1,14 @@
+;;; DLA DEBUGUJĄCEGO CO GDZIE TRZYMAM
+;; r8->L permutacja
+;; r9->R permutacja
+;; r10 -> T permutacja
+;; r12b -> klucz L
+;; r13b -> R
+;; r15 iterator po słówku
+;; r14b znak do zakodzenia
+
+
+
 ;;;;;;;; CONSTANTS ;;;;;;;;
 
 BUFFER_SIZE     equ 10
@@ -151,7 +162,7 @@ TOP_LIMIT       equ 90
     correct_character           r14b
 
     code_letter_with_Q          r13b
-    code_letter_with_rotor      r9
+;    code_letter_with_rotor      r9
     code_letter_with_Q_reverse  r13b
 ;
     code_letter_with_Q          r12b
@@ -227,6 +238,7 @@ _start:
         inc                 r15
         cmp                 r15, [e1_len]
         je                  .end_small_loop
+        jmp                 .small_loop
     .end_small_loop:
     ;; tyle wczytano znaków
 
