@@ -168,17 +168,17 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro code_letter 1 ;; codes the letter stored in r14b
     change_rotors  0
     
-    mov             rdx, 1
-    mov             rax, 1
-    mov             rdi, 1
-    movzx           rsi, r12b
-    syscall
-    
-    mov             rdx, 1
-    mov             rax, 1
-    mov             rdi, 1
-    movzx           rsi, r13b
-    syscall
+;    mov             rdx, 1
+;    mov             rax, 1
+;    mov             rdi, 1
+;    movzx           rsi, r12b
+;    syscall
+;
+;    mov             rdx, 1
+;    mov             rax, 1
+;    mov             rdi, 1
+;    movzx           rsi, r13b
+;    syscall
     
     correct_character           r14b
 
