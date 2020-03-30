@@ -12,8 +12,8 @@
 ;;;;;;;; CONSTANTS ;;;;;;;;
 
 BUFFER_SIZE     equ 10
-DOWN_LIMIT      equ 49
-TOP_LIMIT       equ 90
+DOWN_LIMIT      equ 49   ; '1'
+TOP_LIMIT       equ 90   ; 'Z'
 
 ;; MACROS
 
@@ -187,7 +187,7 @@ TOP_LIMIT       equ 90
 ;    code_letter_with_rotor      r1
 ;    code_letter_with_Q_reverse  r13b
     
-;    change_rotors  0
+    change_rotors  0
 %endmacro
 
 ;;;;;;;; END OF MACROS ;;;;;;;;
