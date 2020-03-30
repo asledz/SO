@@ -196,7 +196,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 global _start
 
 section .data
-    str:    times BUFFER_SIZE db 0 ; alokuję miejsce na string.
+    str:    times BUFFER_SIZE+1 db 0 ; alokuję miejsce na string.
     l1:     times 42 db 0
     r1:     times 42 db 0
     t1:     times 42 db 0
