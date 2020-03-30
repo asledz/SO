@@ -75,7 +75,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     movzx edx, byte [%1 + rcx - DOWN_LIMIT] ; load src[src[counter]]
 
     cmp eax, edx ; assert that src[src[counter]] == counter
-    jne bad_input
+    jne bad_input_xxxx
     cmp eax, ecx ; assert that src[counter] != counter
     je bad_input_xxxx
 
