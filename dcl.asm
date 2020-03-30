@@ -242,7 +242,7 @@ _start:
     .small_loop:
         mov                 r14b, byte [str + r15]
         code_letter         0
-        mov                 byte j[str + r15], r14b
+        mov                 byte [str + r15], r14b
         inc                 r15
         cmp                 byte[str + r15], 0
         je                  .end_small_loop
