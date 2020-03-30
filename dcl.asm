@@ -258,7 +258,7 @@ main_loop:
     syscall
     
     ;; CZY TO KONIEC? wczytywania
-    cmp     edx, BUFFER_SIZE
+    cmp     rdx, BUFFER_SIZE
     je      main_loop
     jmp     end_program
 
