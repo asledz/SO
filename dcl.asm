@@ -106,8 +106,8 @@ TOP_LIMIT       equ 90
 
 %macro code_letter_with_Q 1
     mov     dl, r14b
-    add     dl, %1 ;increase o key
-    sub     dl, DOWN_LIMIT
+    add     dl, %1              ;increase o key
+    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
     sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
@@ -122,11 +122,28 @@ TOP_LIMIT       equ 90
 %endmacro
 
 %macro code_letter_with_Q_reverse 1
-nop
+    mov     dl, r14b
+    add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
+    sub     dl, %1              ;decrease o key
+    sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
+    sub     dl, DOWN_LIMIT
+
+    %%needs_modulo:
+    cmp     dl, 42
+    jbe     %%dont_need_modulo
+    sub     dl, 42
+    jmp     %%needs_modulo
+
+    %%dont_need_modulo:
+    add     dl, DOWN_LIMIT
+    mov     r14b, dl
 %endmacro
 
 %macro code_letter_with_rotor 1
-   nop
+   mov      rdx, 0
+   mov      dl, r14b
+   sub      dl, DOWN_LIMIT
+   mov      r14b, byte [%1 + rdx]
 %endmacro
 
 
