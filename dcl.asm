@@ -252,7 +252,7 @@ _start:
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
     mov             rax, 1
-    mov             rdi, 1
+    mov             rdi, 0
     mov             rsi, str
     int             0x80
 
