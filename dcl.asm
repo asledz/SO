@@ -152,11 +152,11 @@ TOP_LIMIT       equ 90
 
     code_letter_with_Q          r13b
 ;    code_letter_with_rotor      r9
-;    code_letter_with_Q_reverse  r13b
+    code_letter_with_Q_reverse  r13b
 ;
     code_letter_with_Q          r12b
 ;    code_letter_with_rotor      r8
-;    code_letter_with_Q_reverse  r12b
+    code_letter_with_Q_reverse  r12b
 ;
 ;    code_letter_with_rotor      r10
 ;
