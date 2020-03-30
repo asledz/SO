@@ -185,7 +185,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 ;    code_letter_with_rotor      r1
 ;    code_letter_with_Q_reverse  r13b
     
-;    change_rotors  0
+    change_rotors  0
 %endmacro
 
 ;;;;;;;; END OF MACROS ;;;;;;;;
@@ -252,15 +252,12 @@ main_loop:
     mov             rax, 1
     mov             rdi, 1
     mov             rsi, str
-    printing:
     syscall
     
     ;; CZY TO KONIEC? wczytywania
     cmp     rdx, BUFFER_SIZE
     je      main_loop
-    koniec_skacze:
     jmp     end_program
-
 
 end_program:
     
