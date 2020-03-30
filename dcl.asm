@@ -168,18 +168,6 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro code_letter 1 ;; codes the letter stored in r14b
     change_rotors  0
     
-;    mov             rdx, 1
-;    mov             rax, 1
-;    mov             rdi, 1
-;    movzx           rsi, r12b
-;    syscall
-;
-;    mov             rdx, 1
-;    mov             rax, 1
-;    mov             rdi, 1
-;    movzx           rsi, r13b
-;    syscall
-    
     correct_character           r14b
 
     code_letter_with_Q          r13b
@@ -240,8 +228,8 @@ _start:
     
     pop                             r12             ; zmienna: Key
     check_key                       r12
-    mov                             r13b, byte [r12 + 1]
-    mov                             r12b, byte [r12]
+    movzx                           r13, byte [r12 + 1]
+    movzx                           r12, byte [r12]
 
 main_loop:
     mov     rax, 0
