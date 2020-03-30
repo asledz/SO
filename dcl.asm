@@ -166,6 +166,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 
 
 %macro code_letter 1 ;; codes the letter stored in r14b
+    change_rotors  0
     correct_character           r14b
 
     code_letter_with_Q          r13b
@@ -185,8 +186,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     code_letter_with_Q          r13b
     code_letter_with_rotor      r1
     code_letter_with_Q_reverse  r13b
-    
-    change_rotors  0
+
 %endmacro
 
 ;;;;;;;; END OF MACROS ;;;;;;;;
