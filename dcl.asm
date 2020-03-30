@@ -248,12 +248,13 @@ main_loop:
         je                  end_small_loop
         jmp                 small_loop
     end_small_loop:
-
+    
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
     mov             rax, 1
     mov             rdi, 1
     mov             rsi, str
+    printing:
     syscall
     
     ;; CZY TO KONIEC? wczytywania
