@@ -169,7 +169,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 %macro code_letter 1 ;; codes the letter stored in r14b
 ;    correct_character           r14b
 
-    code_letter_with_Q          r13b
+;    code_letter_with_Q          r13b
 ;    code_letter_with_rotor      r9
 ;    code_letter_with_Q_reverse  r13b
 ;
@@ -232,11 +232,11 @@ _start:
     mov                             r12b, byte [r12]
 
 .main_loop:
-    mov     eax, 3
+    mov     eax, 0
     mov     ebx, 0
     mov     ecx, str
     mov     edx, BUFFER_SIZE
-    int     0x80
+    syscall
     
     mov     r15, 0
     .small_loop:
@@ -251,7 +251,7 @@ _start:
 
     ;; WYPISZ POPRAWIONY STRING
     mov             edx, eax
-    mov             eax, 4
+    mov             eax, 1
     mov             ebx, 1
     mov             ecx, str
     int             0x80
