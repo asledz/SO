@@ -232,10 +232,10 @@ _start:
     mov                             r12b, byte [r12]
 
 .main_loop:
-    mov     eax, 0
-    mov     ebx, 0
-    mov     ecx, str
-    mov     edx, BUFFER_SIZE
+    mov     rax, 0
+    mov     rdi, 0
+    mov     rsi, str
+    mov     rdx, BUFFER_SIZE
     syscall
     
     mov     r15, 0
@@ -250,10 +250,10 @@ _start:
     .end_small_loop:
 
     ;; WYPISZ POPRAWIONY STRING
-    mov             edx, eax
-    mov             eax, 1
-    mov             ebx, 1
-    mov             ecx, str
+    mov             rdx, rax
+    mov             rax, 1
+    mov             rdi, 1
+    mov             rsi, str
     int             0x80
 
     ;; CZY TO KONIEC? wczytywania
