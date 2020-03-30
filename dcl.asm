@@ -169,22 +169,22 @@ TOP_LIMIT       equ 90   ; 'Z'
     correct_character           r14b
 
     code_letter_with_Q          r13b
-;    code_letter_with_rotor      r9 ;; R
-;    code_letter_with_Q_reverse  r13b
-;
-;    code_letter_with_Q          r12b
-;    code_letter_with_rotor      r8 ;; L
-;    code_letter_with_Q_reverse  r12b
-;
-;    code_letter_with_rotor      r10 ;; T
-;
-;    code_letter_with_Q          r12b
-;    code_letter_with_rotor      l1 ;; L^-1
-;    code_letter_with_Q_reverse  r12b
-;
-;    code_letter_with_Q          r13b
-;    code_letter_with_rotor      r1 ;; R^-1
-;    code_letter_with_Q_reverse  r13b
+    code_letter_with_rotor      r9 ;; R
+    code_letter_with_Q_reverse  r13b
+
+    code_letter_with_Q          r12b
+    code_letter_with_rotor      r8 ;; L
+    code_letter_with_Q_reverse  r12b
+
+    code_letter_with_rotor      r10 ;; T
+
+    code_letter_with_Q          r12b
+    code_letter_with_rotor      l1 ;; L^-1
+    code_letter_with_Q_reverse  r12b
+
+    code_letter_with_Q          r13b
+    code_letter_with_rotor      r1 ;; R^-1
+    code_letter_with_Q_reverse  r13b
 
 %endmacro
 
