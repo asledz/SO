@@ -11,6 +11,7 @@ BUFFER_SIZE     equ 10
 DOWN_LIMIT      equ 49   ; '1'
 TOP_LIMIT       equ 90   ; 'Z'
 
+
 ;; MACROS
 
 ; ends program with given code
@@ -140,7 +141,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     add     dl, 42              ;profilaktyczne zwiększenie o długość alfabetu przed odjęciem
     sub     dl, %1              ;decrease o key
     sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
-    sub     dl, DOWN_LIMIT
+    add     dl, DOWN_LIMIT
 
     %%needs_modulo:
     cmp     dl, 42
