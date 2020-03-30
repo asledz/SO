@@ -239,15 +239,15 @@ _start:
     syscall
     
     mov     r15, 0
-;    .small_loop:
-;        mov                 r14b, byte [str + r15]
-;        code_letter         0
-;        mov                 byte j[str + r15], r14b
-;        inc                 r15
-;        cmp                 byte[str + r15], 0
-;        je                  .end_small_loop
-;        jmp                 .small_loop
-;    .end_small_loop:
+    .small_loop:
+        mov                 r14b, byte [str + r15]
+        code_letter         0
+        mov                 byte j[str + r15], r14b
+        inc                 r15
+        cmp                 byte[str + r15], 0
+        je                  .end_small_loop
+        jmp                 .small_loop
+    .end_small_loop:
 
     ;; WYPISZ POPRAWIONY STRING
     mov             rdx, rax
