@@ -225,7 +225,7 @@ _start:
         code_letter         0
         mov                 [str + r15], r14b
         inc                 r15
-        cmp                 r15, [eax]
+        cmp                 r15, [e1_len]
         je                  .end_small_loop
     .end_small_loop:
     ;; tyle wczytano znaków
