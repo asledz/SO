@@ -151,7 +151,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     jmp     %%needs_modulo
 
     %%dont_need_modulo:
-    dec     d1
+    dec     dl
     add     dl, DOWN_LIMIT
     mov     r14b, dl
 %endmacro
