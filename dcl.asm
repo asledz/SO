@@ -1,4 +1,4 @@
-BUFFER_SIZE     equ 10
+BUFFER_SIZE     equ 1000
 DOWN_LIMIT      equ 49
 TOP_LIMIT       equ 90
 
@@ -12,9 +12,9 @@ TOP_LIMIT       equ 90
 ; Checks, if given character c meets '1' <= c <= 'Z'.
 %macro correct_character 1
     cmp     %1, DOWN_LIMIT
-    jl      bad_inital_check2
+    jl      bad_input
     cmp     %1, TOP_LIMIT
-    jg      bad_inital_check2
+    jg      bad_input
 %endmacro
 
 ;; Checks, if given permutation has length 42 and contains only allowed characers.
@@ -30,21 +30,20 @@ TOP_LIMIT       equ 90
     %%end_length:
 
     cmp                 rcx, 42
-    jne                 bad_inital_check
+    jne                 bad_input
 %endmacro
 
-;; Creates reversed permutation.
+;; Creates reversed permutation: for example 210 -> 012, for L and R argument.
 %macro create_reverse_permutation 2
     mov             rdx, 0
     %%iterate_rev:
         cmp         rdx, 42
         je          %%end_rev
 
-        movzx ecx, byte [%1 + rdx] ; ecx is currently processed value
+        movzx ecx, byte [%1 + rdx]
         sub ecx, DOWN_LIMIT
-        ; if destination[ecx] != 0xff source must invalid, exit failure
         cmp byte [%2 + rcx], 0xff
-        jne bad_input_4
+        jne bad_input
         mov rax, rdx
         add rax, DOWN_LIMIT
         mov [%2 + rcx], al
@@ -54,18 +53,19 @@ TOP_LIMIT       equ 90
     %%end_rev:
 %endmacro
 
+;; Validate cycles int T argument.
 %macro validate_cycles 1
-    xor eax, eax ; use eax as loop counter
+    xor eax, eax
 %%loop:
 
-    movzx ecx, byte [%1 + rax] ; load src[counter]
+    movzx ecx, byte [%1 + rax]
     sub ecx, DOWN_LIMIT
-    movzx edx, byte [%1 + rcx] ; load src[src[counter]]
+    movzx edx, byte [%1 + rcx]
     sub edx, DOWN_LIMIT
 
-    cmp eax, edx ; assert that src[src[counter]] == counter
+    cmp eax, edx
     jne bad_input
-    cmp eax, ecx ; assert that src[counter] != counter
+    cmp eax, ecx
     je bad_input
 
     inc eax
@@ -73,8 +73,7 @@ TOP_LIMIT       equ 90
     jne %%loop
 %endmacro
 
-
-;; Sprawdza czy klucze są poprawne i jest ich odpowiednia liczba(dostaje dwa klucze w 1, jak parametr na wejścius).
+;; Validates key argument.
 %macro check_key 1
     mov             rdx, 0
     mov             rcx, %1
@@ -93,29 +92,28 @@ TOP_LIMIT       equ 90
     jne     %%wrong_len
 %endmacro
 
-
-;; PRZERZUCA KLUCZE - trzymane na r12b(l_key) oraz r13b(r_key). Argument nic nie robi, psuło się macro bez niego
+;; Changes keys - Lkey and Rkey.
 %macro change_rotors 1
-    add         r13b, 1 ; tutaj trzymam R key
-    cmp         r13b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
-    je          %%fix_rotor_r       ;napraw
+    add         r13b, 1
+    cmp         r13b, TOP_LIMIT+1
+    je          %%fix_rotor_r
 
     %%check_rotor_l:
     cmp         r13b, 'L'
-    je          %%move_rotor_l      ;ruszam jesli l
+    je          %%move_rotor_l
     cmp         r13b, 'R'
-    je          %%move_rotor_l      ;ruszam jesli r
+    je          %%move_rotor_l
     cmp         r13b, 'T'
-    je          %%move_rotor_l      ;ruszam jesli t
-    jmp         %%end_rotors        ;koncze wszystko
+    je          %%move_rotor_l
+    jmp         %%end_rotors
 
     %%fix_rotor_r:
-    mov         r13b, DOWN_LIMIT    ;musze ustawić go na dolny limit
-    jmp         %%check_rotor_l      ; sprawdzam lke
+    mov         r13b, DOWN_LIMIT
+    jmp         %%check_rotor_l
 
     %%move_rotor_l:
     add         r12b, 1
-    cmp         r12b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
+    cmp         r12b, TOP_LIMIT+1
     je          %%fix_rotor_l
     jmp         %%end_rotors
 
@@ -126,6 +124,7 @@ TOP_LIMIT       equ 90
     %%end_rotors:
 %endmacro
 
+;; Codes letter stored in r14b with Q rotor.
 %macro code_letter_with_Q 1
     mov     dl, r14b
     sub     dl, DOWN_LIMIT
@@ -143,6 +142,7 @@ TOP_LIMIT       equ 90
     mov     r14b, dl
 %endmacro
 
+;; Codes letter stored in r14b with Q^-1 rotor.
 %macro code_letter_with_Q_reverse 1
     mov     dl, r14b
     add     dl, 42
@@ -159,6 +159,7 @@ TOP_LIMIT       equ 90
     mov     r14b, dl
 %endmacro
 
+;; Codes letter stored in r14b with any given by array rotor.
 %macro code_letter_with_rotor 1
    xor      rdx, rdx
    mov      dl, r14b
@@ -166,10 +167,9 @@ TOP_LIMIT       equ 90
    mov      r14b, byte [%1 + rdx]
 %endmacro
 
-
+;; Runs all of the sequences needed for coding the letter.
 %macro code_letter 1
     change_rotors  0
-
     correct_character           r14b
 
     code_letter_with_Q          r13b
@@ -195,13 +195,11 @@ TOP_LIMIT       equ 90
 global _start
 
 section .bss
-str:   resb BUFFER_SIZE+1
-
+str:   resb BUFFER_SIZE+1       ; buffer for stdin.
 
 section .data
-    l1:     times 42 db 0xff
-    r1:     times 42 db 0xff
-    t1:     times 42 db 0xff
+    l1:     times 42 db 0xff    ; reversed permutation for L rotor.
+    r1:     times 42 db 0xff    ; reversed permutation for R rotor.
 
 section .text
 
@@ -212,7 +210,8 @@ _start:
     cmp     rax, 5
     jne     bad_input
     pop     rax
-
+    
+;    Check the arguments given.
     pop                             r8              ; permutacja L
     correct_permutation             r8
     create_reverse_permutation      r8, l1
@@ -223,13 +222,13 @@ _start:
 
     pop                             r10             ; permutacja T
     correct_permutation             r10
-    create_reverse_permutation      r10, t1
     validate_cycles                 r10
 
-    pop                             r12             ; zmienna: Key
+    pop                             r12             ; zmienne key
     check_key                       r12
     movzx                           r13, byte [r12 + 1]
     movzx                           r12, byte [r12]
+
 
 main_loop:
     mov     rax, 0
@@ -244,6 +243,7 @@ main_loop:
     cmp rax, 0
     je end_program
     
+;   Iterates through buffer and codes every letter.
     small_loop:
         cmp                 r15, rcx
         je                  end_small_loop
@@ -254,7 +254,7 @@ main_loop:
         jmp                 small_loop
     end_small_loop:
 
-    mov     rax, rcx
+    mov             rax, rcx
     mov             rdx, rax
     mov             rax, 1
     mov             rdi, 1
@@ -272,16 +272,4 @@ normal_exit:
 
 bad_input:
     end_with_code   1
-
-bad_inital_check:
-    end_with_code   2
-
-bad_inital_check2:
-    end_with_code   3
-
-bad_input_4:
-    end_with_code   4
-
-bad_input_5:
-end_with_code   5
 
