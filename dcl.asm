@@ -118,8 +118,8 @@ TOP_LIMIT       equ 90   ; 'Z'
 ; Koduje literkę, trzymaną za na r14b za pomocą Q(dolny indeks w %1)
 %macro code_letter_with_Q 1
     mov     dl, r14b
-    add     dl, %1              ;increase o key
     sub     dl, DOWN_LIMIT      ; od każdego odejmuję limit
+    add     dl, %1              ;increase o key
     sub     dl, DOWN_LIMIT
 
     %%needs_modulo:
