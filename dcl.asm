@@ -106,7 +106,9 @@ TOP_LIMIT       equ 90   ; 'Z'
     jmp         %%check_rotor_l      ; sprawdzam lke
     
     %%move_rotor_l:
-    mov         r12b, DOWN_LIMIT
+    add         r12b, 1
+    cmp         r12b, TOP_LIMIT+1   ; jeśli wychodzi poza limit
+    je          %%fix_rotor_l
     jmp         %%end_rotors
     
     %%fix_rotor_l:
