@@ -17,7 +17,7 @@
    mov   ebx, 1
    mov   ecx, %1
    mov   edx, %2
-   int   80h
+   int   0x80
 %endmacro
 
 global _start
@@ -32,7 +32,14 @@ _start:
     jne     .wrongInput
 
     ; Pop the name of the program to rcx
-    pop     rax
+    pop     r8d
+    
+    mov     eax, 4
+    mov     ebx, 1
+    mov     ecx, r8
+    mov     edx, 10
+    int     0x80
+    
     ; Test the printing
     write_string [eax], 4
     ;test printing char.
@@ -40,6 +47,15 @@ _start:
     ; End of the program
 
 
+
+  mov edx, napis
+petla:
+    mov ecl, byte [edx]
+    zrób coś z cl
+    inc edx ; beda niewyrownane dostepy do pamieic, nie wiem, czy cos sie nie wyjebie
+    test cl, cl ; sprawdz czy 0, stringi w C koncza sie na zerowym bajcie, to ustawi flage Z, jesli jest 0
+    jnz petla ; jesli flaga Z nieustawiona, skocz
+koniec:
 
 
 .exit:
