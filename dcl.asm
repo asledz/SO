@@ -244,7 +244,7 @@ main_loop:
         code_letter         0
         mov                 byte [str + r15], r14b
         inc                 r15
-        cmp                 byte    [str + r15], 0
+        cmp                 r15, rax
         je                  end_small_loop
         jmp                 small_loop
     end_small_loop:
