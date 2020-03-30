@@ -77,7 +77,7 @@ TOP_LIMIT       equ 90   ; 'Z'
     cmp eax, edx ; assert that src[src[counter]] == counter
     jne bad_input
     cmp eax, ecx ; assert that src[counter] != counter
-    je bad_input
+    je bad_input_xxxx
 
     inc eax
     cmp eax, 42
@@ -305,4 +305,8 @@ bad_input_4:
 
 bad_input_5:
 end_with_code   1
+
+
+bad_input_xxxx:
+end_with_code   7
 
