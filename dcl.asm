@@ -1,4 +1,3 @@
-;;; DLA DEBUGUJĄCEGO CO GDZIE TRZYMAM
 ;; r8   -> L permutacja
 ;; r9   -> R permutacja
 ;; r10  -> T permutacja
@@ -145,7 +144,7 @@ TOP_LIMIT       equ 90   ; 'Z'
 
     %%needs_modulo:
     cmp     dl, 42
-    jbe     %%dont_need_modulo
+    jl      %%dont_need_modulo
     sub     dl, 42
     jmp     %%needs_modulo
 
