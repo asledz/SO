@@ -232,9 +232,9 @@ _start:
     
     mov     r15, 0
     .small_loop:
-        mov                 r14b, byte [str + r15]
+;        mov                 r14b, byte [str + r15]
 ;        code_letter         0
-        mov                 [str + r15], r14b
+;        mov                 [str + r15], r14b
         inc                 r15
         cmp                 r15, [eax]
         je                  .end_small_loop
