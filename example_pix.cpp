@@ -77,6 +77,7 @@ u64 getSjForN(u64 j, u64 n)
 u64 getPiForN(u64 n)
 {
     u64 S1 = getSjForN(1, n);
+    return S1;
     u64 S4 = getSjForN(4, n);  
     u64 S5 = getSjForN(5, n);  
     u64 S6 = getSjForN(6, n);  
