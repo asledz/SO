@@ -36,12 +36,12 @@ pix:
     mov                     r8, rdi
     mov                     r9, [rsi]
     mov                     r10, rdx
-    imul                    r9, 8
-    imul                    r10, 8
     
     main_loop:
+        imul                r9, 8
         mov                qword [r8 + r9], 1 ; set all values as 1.
-        add                r9, 8
+        div                 r9, 8
+        inc                 r9
         cmp                r9, r10
         jne                main_loop
         jmp                end_loop
