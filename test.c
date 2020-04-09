@@ -9,7 +9,8 @@ int main(){
 	uint64_t index = 0;
 
 	pix(tab, &index, n);
-
+    
+    printf("OTO MOJ WYNIK\n");
 	 for (uint64_t i = 0; i < n; ++i) {
 	 	printf("%08x\n", tab[i]);
 	 }
