@@ -38,8 +38,8 @@ pix:
     mov                     r10, rdx
     
     ;; mnoże razy 10
-    imul                    r9, 8
-    imul                    r10, 8
+    mul                    r9, 8
+    mul                    r10, 8
 
     main_loop:
     
