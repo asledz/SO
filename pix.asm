@@ -34,12 +34,17 @@ pix:
     ; start point - R9
     ; end point - R10
     mov                     r8, rdi
-    mov                     r9, [rsi]
+    mov                     r9, qword [rsi]
     mov                     r10, rdx
     
-    ;; mnoże razy 10
-    mul                    r9, 8
-    mul                    r10, 8
+    ;; mnoże razy 8
+    mov                    rax, r9
+    mul                    8
+    mov                    r9, rax
+    
+    mov                    rax, r10
+    mul                    8
+    mov                    r10, rax
 
     main_loop:
     
