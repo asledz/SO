@@ -42,11 +42,12 @@ pix:
     imul                    r10, 8
 
     main_loop:
+    
+        cmp                r9, r10
+        jne                main_loop
 
         mov                qword [r8 + r9], 1 ; set all values as 1.
         add                r9, 8
-        cmp                r9, r10
-        jne                main_loop
         jmp                end_loop
     
     end_loop:
