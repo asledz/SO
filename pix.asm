@@ -46,7 +46,7 @@ pix:
         cmp                r9, r10
         je                 end_loop
 
-        mov                qword [r8 + r9], 1 ; set all values as 1.
+        mov                dword [r8 + r9], 1 ; set all values as 1.
         add                r9, 8
         jmp                main_loop
     
