@@ -53,4 +53,5 @@ pix:
     end_loop:
     
     normal_exit:
+        ret
    
