@@ -53,20 +53,20 @@ u64 getSjForN(u64 j, u64 n)
         result += getDivFraction(numerator, denominator);
     }
     
-    u64 cur16Pow = getDivFraction(1, 16); // {1/16};
-
-    for(u64 k = n+1; ;k++)
-    {
-        u64 numerator = cur16Pow;
-        u64 denominator = (u64)8*k + j;
-        u64 curPart = numerator/denominator; 
-
-        if(curPart == 0)
-            break;
-
-        result += curPart;
-        cur16Pow = fracMul(cur16Pow, getDivFraction(1, 16)); 
-    }
+//    u64 cur16Pow = getDivFraction(1, 16); // {1/16};
+//
+//    for(u64 k = n+1; ;k++)
+//    {
+//        u64 numerator = cur16Pow;
+//        u64 denominator = (u64)8*k + j;
+//        u64 curPart = numerator/denominator;
+//
+//        if(curPart == 0)
+//            break;
+//
+//        result += curPart;
+//        cur16Pow = fracMul(cur16Pow, getDivFraction(1, 16));
+//    }
 
     return result;
 
