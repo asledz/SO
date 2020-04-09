@@ -39,7 +39,7 @@ pix:
     
     main_loop:
         inc                r9
-        mov                qword [r8 + r9], 1 ; set all values as 1.
+        mov                dword [r8 + r9], 1 ; set all values as 1.
         cmp                r9, [r10]
         jne                main_loop
         jmp                end_loop
