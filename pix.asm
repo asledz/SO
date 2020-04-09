@@ -39,4 +39,4 @@ pix:
     end_loop:
     
     normal_exit:
-        end_with_code      0
+   
