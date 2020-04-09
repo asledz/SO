@@ -34,7 +34,7 @@ pix:
     ; start point - R9
     ; end point - R10
     mov                     r8, rdi
-    mov                     r9, rsi
+    mov                     r9, [rsi]
     mov                     r10, rdx
     
     main_loop:
