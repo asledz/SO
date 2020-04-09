@@ -25,17 +25,17 @@ section .data
 section .text
 
 
-; All of the arguments are stored in: RDI, RSI, RDX
+; All of the arguments are stored in: RDI(array), RSI(start point), RDX(end point)
 
 pix:
 
     main_loop:
-        calculate_pi       rsi
+;        calculate_pi       rsi
         inc                rsi
         cmp                rsi, rdx
-        jne                main_loop
+        jne                end_loop
         jmp                end_loop
-        
+    
     end_loop:
     
     normal_exit:
