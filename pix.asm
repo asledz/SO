@@ -1,3 +1,5 @@
+EIGHT             equ 8
+
 extern pixtime
 
 global pix
@@ -38,12 +40,12 @@ pix:
     mov                     r10, rdx
     
     ;; mnoże razy 8
-    mov                    rax, r9
-    mul                    8
+    mov                    rax, 8
+    mul                    r9
     mov                    r9, rax
     
-    mov                    rax, r10
-    mul                    8
+    mov                    rax, 8
+    mul                    r10
     mov                    r10, rax
 
     main_loop:
