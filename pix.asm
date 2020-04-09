@@ -44,11 +44,11 @@ pix:
     main_loop:
     
         cmp                r9, r10
-        jne                main_loop
+        je                 end_loop
 
         mov                qword [r8 + r9], 1 ; set all values as 1.
         add                r9, 8
-        jmp                end_loop
+        jmp                main_loop
     
     end_loop:
     
