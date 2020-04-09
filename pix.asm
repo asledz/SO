@@ -29,11 +29,19 @@ section .text
 
 pix:
 
+    ; MOVE ALL OF THE ARGUMENTS TO:
+    ; array - R8
+    ; start point - R9
+    ; end point - R10
+    mov                     r8, rdi
+    mov                     r9, rsi
+    mov                     r10, rdx
+    
     main_loop:
-;        calculate_pi       rsi
-        inc                rsi
-        cmp                rsi, rdx
-        jne                end_loop
+        inc                r9
+        mov                [r8 + r9], 1 ; set all values as 1.
+        cmp                r9, [r10]
+        jne                main_loop
         jmp                end_loop
     
     end_loop:
