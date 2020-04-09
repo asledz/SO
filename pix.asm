@@ -1,6 +1,6 @@
 extern pixtime
 
-global _pixme
+global pix
 
 
 ; calculates S1
@@ -27,7 +27,7 @@ section .text
 
 ; All of the arguments are stored in: RDI, RSI, RDX
 
-_pixme:
+pix:
 
     main_loop:
         calculate_pi       rsi
