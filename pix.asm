@@ -59,7 +59,7 @@ pix:
         ; setting values
         mov                dword [r8 + r9], 1 ; set all values as 1.
     
-        add                r9, 8
+        add                r9, 4
         jmp                main_loop
     
     end_loop:
