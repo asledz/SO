@@ -39,11 +39,14 @@ pix:
     mov                     r9, qword [rsi]
     mov                     r10, rdx
     
+    
     ;; mnoże razy 8
+    xor                    rdx, rdx
     mov                    rax, 8
     mul                    r9
     mov                    r9, rax
     
+    xor                    rdx, rdx
     mov                    rax, 8
     mul                    r10
     mov                    r10, rax
