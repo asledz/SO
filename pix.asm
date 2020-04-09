@@ -1,5 +1,3 @@
-EIGHT             equ 8
-
 extern pixtime
 
 global pix
@@ -40,14 +38,15 @@ pix:
     mov                     r10, rdx
     
     
-    ;; mnoże razy 8
+    ;; mnoże razy 8 index startowy
     xor                    rdx, rdx
-    mov                    rax, 8
+    mov                    rax, 4
     mul                    r9
     mov                    r9, rax
     
+    ;; mnoże razy 8 index końcowy
     xor                    rdx, rdx
-    mov                    rax, 8
+    mov                    rax, 4
     mul                    r10
     mov                    r10, rax
 
@@ -55,8 +54,11 @@ pix:
     
         cmp                r9, r10
         je                 end_loop
-
+        
+        
+        ; setting values
         mov                dword [r8 + r9], 1 ; set all values as 1.
+    
         add                r9, 8
         jmp                main_loop
     
