@@ -38,8 +38,9 @@ pix:
     mov                     r10, rdx
     
     main_loop:
+        mov                qword [r8 + r9], 1 ; set all values as 1.
         inc                r9
-        mov                dword [r8 + r9], 1 ; set all values as 1.
+
         cmp                r9, [r10]
         jne                main_loop
         jmp                end_loop
