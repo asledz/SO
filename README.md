@@ -2,27 +2,28 @@
 Systemy operacyjne, MIMUW
 
 
-## Zadanie 1 - DLC
+### Zadanie 1 - DLC
 
 Program kodujący enigmę
 
-## Zadanie 2 - PIX
+### Zadanie 2 - PIX
 
 Niezaimplementowane
 
-## Zadanie 3 
+### Zadanie 3 
 
 Syscall w MINIXIE - odzyskiwanie oryginalnego rodzica.
 
-## Zadanie 4
+### Zadanie 4
 
 Nieskończone - dawanie kudosów procesom, szeregowanie ich wg. kudosów
 
-## Zadanie 5
+### Zadanie 5
 
 Encryptowanie podłączonego dysku za pomocą klucza szyfrem cezara.
 
-## Zadanie 6
+### Zadanie 6
+
 
 ## Uruchamianie MINIXa
 
