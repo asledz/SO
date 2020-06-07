@@ -1,0 +1,232 @@
+diff -rupN minix_source_original/usr/include/minix/callnr.h minix_source/usr/include/minix/callnr.h
+--- minix_source_original/usr/include/minix/callnr.h	2014-09-14 11:00:44.000000000 +0200
++++ minix_source/usr/include/minix/callnr.h	2020-05-08 14:45:11.000000000 +0200
+@@ -58,8 +58,10 @@
+ #define PM_GETEPINFO		(PM_BASE + 45)
+ #define PM_GETPROCNR		(PM_BASE + 46)
+ #define PM_GETSYSINFO		(PM_BASE + 47)
++#define PM_CHANGE_PARENT		(PM_BASE + 48)
++#define PM_GETOPPID			(PM_BASE + 49)
+ 
+-#define NR_PM_CALLS		48	/* highest number from base plus one */
++#define NR_PM_CALLS		50	/* highest number from base plus one */
+ 
+ /*===========================================================================*
+  *				Calls to VFS				     *
+diff -rupN minix_source_original/usr/include/unistd.h minix_source/usr/include/unistd.h
+--- minix_source_original/usr/include/unistd.h	2014-09-14 11:00:43.000000000 +0200
++++ minix_source/usr/include/unistd.h	2020-05-08 01:05:20.000000000 +0200
+@@ -411,5 +411,9 @@ extern	 int optreset;		/* getopt(3) exte
+ extern	 char *suboptarg;	/* getsubopt(3) external variable */
+ #endif
+ 
++/* Zadanie zaliczeniowe */
++int changeparent();
++pid_t getoppid(pid_t pid);
++
+ __END_DECLS
+ #endif /* !_UNISTD_H_ */
+diff -rupN minix_source_original/usr/src/include/unistd.h minix_source/usr/src/include/unistd.h
+--- minix_source_original/usr/src/include/unistd.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/include/unistd.h	2020-05-08 01:05:22.000000000 +0200
+@@ -411,5 +411,9 @@ extern	 int optreset;		/* getopt(3) exte
+ extern	 char *suboptarg;	/* getsubopt(3) external variable */
+ #endif
+ 
++/* Zadanie zaliczeniowe */
++int changeparent();
++pid_t getoppid(pid_t pid);
++
+ __END_DECLS
+ #endif /* !_UNISTD_H_ */
+diff -rupN minix_source_original/usr/src/lib/libc/misc/Makefile.inc minix_source/usr/src/lib/libc/misc/Makefile.inc
+--- minix_source_original/usr/src/lib/libc/misc/Makefile.inc	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/lib/libc/misc/Makefile.inc	2020-05-08 01:05:12.000000000 +0200
+@@ -8,3 +8,6 @@ SRCS+=	initfini.c
+ 
+ # for -fstack-protector
+ SRCS+=	stack_protector.c
++
++# zadanie zaliczeniowe
++SRCS+= changeparent.c
+\ No newline at end of file
+diff -rupN minix_source_original/usr/src/lib/libc/misc/changeparent.c minix_source/usr/src/lib/libc/misc/changeparent.c
+--- minix_source_original/usr/src/lib/libc/misc/changeparent.c	1970-01-01 01:00:00.000000000 +0100
++++ minix_source/usr/src/lib/libc/misc/changeparent.c	2020-05-08 15:11:12.000000000 +0200
+@@ -0,0 +1,29 @@
++#include <lib.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <unistd.h>
++#include <minix/rs.h>
++
++int changeparent() {
++	endpoint_t pm_pt;
++    minix_rs_lookup("pm", &pm_pt) ;
++    message m;
++  	if( (_syscall(pm_pt, PM_CHANGE_PARENT, &m)) == 0) {
++  		return 0;
++  	}
++  	return -1;
++}	
++
++pid_t getoppid(pid_t pid) {
++	endpoint_t pm_pt;
++	minix_rs_lookup("pm", &pm_pt);
++	message m;
++	m.m_lc_pm_getsid.pid = pid;
++
++	if ((_syscall(pm_pt, PM_GETOPPID, &m)) == 0) {
++		return m.m_lc_pm_getsid.pid;
++	}
++
++	return -1;
++}
+diff -rupN minix_source_original/usr/src/minix/include/minix/callnr.h minix_source/usr/src/minix/include/minix/callnr.h
+--- minix_source_original/usr/src/minix/include/minix/callnr.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/include/minix/callnr.h	2020-05-08 14:45:15.000000000 +0200
+@@ -58,8 +58,10 @@
+ #define PM_GETEPINFO		(PM_BASE + 45)
+ #define PM_GETPROCNR		(PM_BASE + 46)
+ #define PM_GETSYSINFO		(PM_BASE + 47)
++#define PM_CHANGE_PARENT		(PM_BASE + 48)
++#define PM_GETOPPID			(PM_BASE + 49)
+ 
+-#define NR_PM_CALLS		48	/* highest number from base plus one */
++#define NR_PM_CALLS		50	/* highest number from base plus one */
+ 
+ /*===========================================================================*
+  *				Calls to VFS				     *
+diff -rupN minix_source_original/usr/src/minix/servers/pm/Makefile minix_source/usr/src/minix/servers/pm/Makefile
+--- minix_source_original/usr/src/minix/servers/pm/Makefile	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/Makefile	2020-05-07 23:20:21.000000000 +0200
+@@ -2,7 +2,7 @@
+ 
+ # Makefile for Process Manager (PM)
+ PROG=	pm
+-SRCS=	main.c forkexit.c exec.c time.c alarm.c \
++SRCS=	main.c forkexit.c exec.c time.c alarm.c changeparent.c \
+ 	signal.c utility.c table.c trace.c getset.c misc.c \
+ 	profile.c mcontext.c schedule.c
+ 
+diff -rupN minix_source_original/usr/src/minix/servers/pm/changeparent.c minix_source/usr/src/minix/servers/pm/changeparent.c
+--- minix_source_original/usr/src/minix/servers/pm/changeparent.c	1970-01-01 01:00:00.000000000 +0100
++++ minix_source/usr/src/minix/servers/pm/changeparent.c	2020-05-08 15:11:07.000000000 +0200
+@@ -0,0 +1,36 @@
++#include <stdio.h>
++#include "pm.h"
++#include "mproc.h"
++
++int do_changeparent(void) {
++	if (mp->mp_original_parent == -1) {
++		mp->mp_original_parent = mp->mp_parent;
++	}
++
++	if(mp->mp_parent == INIT_PROC_NR) {
++		return EACCES;
++	}
++
++	if (mproc[mp->mp_parent].mp_flags & WAITING) {
++		return EPERM;
++	}
++
++	mp->mp_parent = mproc[mp->mp_parent].mp_parent;
++	
++	return OK;
++}
++
++int do_getoppid(void) {
++	pid_t pid = m_in.m_lc_pm_getsid.pid;
++
++	struct mproc *process = find_proc(pid);
++
++	if (process == NULL) {
++		return EINVAL;
++	}
++
++	struct mproc *rmp = mp;
++	rmp->mp_reply.m_lc_pm_getsid.pid = process->mp_original_parent;
++
++	return 0;
++}
+\ No newline at end of file
+diff -rupN minix_source_original/usr/src/minix/servers/pm/forkexit.c minix_source/usr/src/minix/servers/pm/forkexit.c
+--- minix_source_original/usr/src/minix/servers/pm/forkexit.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/forkexit.c	2020-05-07 23:54:45.000000000 +0200
+@@ -85,6 +85,7 @@ int do_fork()
+   procs_in_use++;
+   *rmc = *rmp;			/* copy parent's process slot to child's */
+   rmc->mp_parent = who_p;			/* record child's parent */
++  rmc->mp_original_parent = rmp->mp_pid; 
+   if (!(rmc->mp_trace_flags & TO_TRACEFORK)) {
+ 	rmc->mp_tracer = NO_TRACER;		/* no tracer attached */
+ 	rmc->mp_trace_flags = 0;
+@@ -182,6 +183,7 @@ int do_srv_fork()
+   procs_in_use++;
+   *rmc = *rmp;			/* copy parent's process slot to child's */
+   rmc->mp_parent = who_p;			/* record child's parent */
++  rmc->mp_original_parent = rmp->mp_pid;
+   if (!(rmc->mp_trace_flags & TO_TRACEFORK)) {
+ 	rmc->mp_tracer = NO_TRACER;		/* no tracer attached */
+ 	rmc->mp_trace_flags = 0;
+diff -rupN minix_source_original/usr/src/minix/servers/pm/main.c minix_source/usr/src/minix/servers/pm/main.c
+--- minix_source_original/usr/src/minix/servers/pm/main.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/main.c	2020-05-08 00:01:08.000000000 +0200
+@@ -190,6 +190,7 @@ static int sef_cb_init_fresh(int UNUSED(
+   			 * that mp_parent always points to a valid slot number.
+   			 */
+   			rmp->mp_parent = INIT_PROC_NR;
++        rmp->mp_original_parent = NO_PID;
+   			rmp->mp_procgrp = rmp->mp_pid = INIT_PID;
+ 			rmp->mp_flags |= IN_USE; 
+ 
+@@ -200,9 +201,11 @@ static int sef_cb_init_fresh(int UNUSED(
+ 		else {					/* system process */
+   			if(ip->proc_nr == RS_PROC_NR) {
+   				rmp->mp_parent = INIT_PROC_NR;
++          rmp->mp_original_parent = INIT_PROC_NR;
+   			}
+   			else {
+   				rmp->mp_parent = RS_PROC_NR;
++          rmp->mp_original_parent = -1;
+   			}
+   			rmp->mp_pid = get_free_pid();
+ 			rmp->mp_flags |= IN_USE | PRIV_PROC;
+diff -rupN minix_source_original/usr/src/minix/servers/pm/mproc.h minix_source/usr/src/minix/servers/pm/mproc.h
+--- minix_source_original/usr/src/minix/servers/pm/mproc.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/mproc.h	2020-05-07 23:50:51.000000000 +0200
+@@ -70,6 +70,8 @@ EXTERN struct mproc {
+   char mp_name[PROC_NAME_LEN];	/* process name */
+ 
+   int mp_magic;			/* sanity check, MP_MAGIC */
++
++  pid_t mp_original_parent;
+ } mproc[NR_PROCS];
+ 
+ /* Flag values */
+diff -rupN minix_source_original/usr/src/minix/servers/pm/proto.h minix_source/usr/src/minix/servers/pm/proto.h
+--- minix_source_original/usr/src/minix/servers/pm/proto.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/proto.h	2020-05-08 01:04:52.000000000 +0200
+@@ -89,3 +89,8 @@ struct mproc *find_proc(pid_t lpid);
+ int nice_to_priority(int nice, unsigned *new_q);
+ int pm_isokendpt(int ep, int *proc);
+ void tell_vfs(struct mproc *rmp, message *m_ptr);
++
++/* changeparent.c */
++
++int do_changeparent(void);
++int do_getoppid(void);
+\ No newline at end of file
+diff -rupN minix_source_original/usr/src/minix/servers/pm/table.c minix_source/usr/src/minix/servers/pm/table.c
+--- minix_source_original/usr/src/minix/servers/pm/table.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/table.c	2020-05-08 14:45:05.000000000 +0200
+@@ -58,5 +58,7 @@ int (* const call_vec[NR_PM_CALLS])(void
+ 	CALL(PM_EXEC_RESTART)	= do_execrestart,
+ 	CALL(PM_GETEPINFO)	= do_getepinfo,		/* getepinfo(2) */
+ 	CALL(PM_GETPROCNR)	= do_getprocnr,		/* getprocnr(2) */
+-	CALL(PM_GETSYSINFO)	= do_getsysinfo		/* getsysinfo(2) */
++	CALL(PM_GETSYSINFO)	= do_getsysinfo,		/* getsysinfo(2) */
++	CALL(PM_CHANGE_PARENT) = do_changeparent,
++	CALL(PM_GETOPPID) = do_getoppid
+ };

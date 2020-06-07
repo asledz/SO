@@ -1,0 +1,255 @@
+Binary files minix_source_original/usr/.DS_Store and minix_source/usr/.DS_Store differ
+diff -rupN minix_source_original/usr/include/minix/callnr.h minix_source/usr/include/minix/callnr.h
+--- minix_source_original/usr/include/minix/callnr.h	2014-09-14 11:00:44.000000000 +0200
++++ minix_source/usr/include/minix/callnr.h	2020-05-14 14:25:15.000000000 +0200
+@@ -58,8 +58,10 @@
+ #define PM_GETEPINFO		(PM_BASE + 45)
+ #define PM_GETPROCNR		(PM_BASE + 46)
+ #define PM_GETSYSINFO		(PM_BASE + 47)
++#define PM_GIVEKUDOS		(PM_BASE + 48)
+ 
+-#define NR_PM_CALLS		48	/* highest number from base plus one */
++
++#define NR_PM_CALLS		49	/* highest number from base plus one */
+ 
+ /*===========================================================================*
+  *				Calls to VFS				     *
+diff -rupN minix_source_original/usr/include/unistd.h minix_source/usr/include/unistd.h
+--- minix_source_original/usr/include/unistd.h	2014-09-14 11:00:43.000000000 +0200
++++ minix_source/usr/include/unistd.h	2020-05-15 12:08:44.000000000 +0200
+@@ -411,5 +411,8 @@ extern	 int optreset;		/* getopt(3) exte
+ extern	 char *suboptarg;	/* getsubopt(3) external variable */
+ #endif
+ 
++/* zadanie zaliczeniowe */
++int givekudos(pid_t pid);
++
+ __END_DECLS
+ #endif /* !_UNISTD_H_ */
+Binary files minix_source_original/usr/src/.DS_Store and minix_source/usr/src/.DS_Store differ
+diff -rupN minix_source_original/usr/src/include/unistd.h minix_source/usr/src/include/unistd.h
+--- minix_source_original/usr/src/include/unistd.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/include/unistd.h	2020-05-15 12:09:42.000000000 +0200
+@@ -411,5 +411,9 @@ extern	 int optreset;		/* getopt(3) exte
+ extern	 char *suboptarg;	/* getsubopt(3) external variable */
+ #endif
+ 
++/* zadanie zaliczeniowe */
++int givekudos(pid_t pid);
++
++
+ __END_DECLS
+ #endif /* !_UNISTD_H_ */
+diff -rupN minix_source_original/usr/src/lib/libc/misc/Makefile.inc minix_source/usr/src/lib/libc/misc/Makefile.inc
+--- minix_source_original/usr/src/lib/libc/misc/Makefile.inc	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/lib/libc/misc/Makefile.inc	2020-05-15 12:11:12.000000000 +0200
+@@ -8,3 +8,5 @@ SRCS+=	initfini.c
+ 
+ # for -fstack-protector
+ SRCS+=	stack_protector.c
++
++SRCS+=  kudoslib.c
+\ No newline at end of file
+diff -rupN minix_source_original/usr/src/lib/libc/misc/kudoslib.c minix_source/usr/src/lib/libc/misc/kudoslib.c
+--- minix_source_original/usr/src/lib/libc/misc/kudoslib.c	1970-01-01 01:00:00.000000000 +0100
++++ minix_source/usr/src/lib/libc/misc/kudoslib.c	2020-05-15 12:29:40.000000000 +0200
+@@ -0,0 +1,27 @@
++#include <lib.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <unistd.h>
++#include <minix/rs.h>
++
++
++int givekudos(pid_t pid) {
++	endpoint_t pm_pt;
++	minix_rs_lookup("pm", &pm_pt);
++	message m;
++	m.m_rs_pm_srv_kill.pid = pid;
++
++	if ((_syscall(pm_pt, PM_GIVEKUDOS, &m)) == 0) {
++
++		return m.m_rs_pm_srv_kill.nr;
++		
++		// zwiększy liczbę jego kudosów o jeden. 
++		// Jeśli przyznawanie kudosów przebiegło pomyślnie, 
++		// powinna ona przekazywać jako wynik nowy priorytet procesu o 
++		// identyfikatorze pid, a −1 w przeciwnym przypadku.
++	}
++
++	return -1;
++
++}
+Binary files minix_source_original/usr/src/minix/.DS_Store and minix_source/usr/src/minix/.DS_Store differ
+diff -rupN minix_source_original/usr/src/minix/include/minix/callnr.h minix_source/usr/src/minix/include/minix/callnr.h
+--- minix_source_original/usr/src/minix/include/minix/callnr.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/include/minix/callnr.h	2020-05-14 14:25:07.000000000 +0200
+@@ -58,8 +58,9 @@
+ #define PM_GETEPINFO		(PM_BASE + 45)
+ #define PM_GETPROCNR		(PM_BASE + 46)
+ #define PM_GETSYSINFO		(PM_BASE + 47)
++#define PM_GIVEKUDOS		(PM_BASE + 48)
+ 
+-#define NR_PM_CALLS		48	/* highest number from base plus one */
++#define NR_PM_CALLS		49	/* highest number from base plus one */
+ 
+ /*===========================================================================*
+  *				Calls to VFS				     *
+Binary files minix_source_original/usr/src/minix/servers/.DS_Store and minix_source/usr/src/minix/servers/.DS_Store differ
+diff -rupN minix_source_original/usr/src/minix/servers/pm/Makefile minix_source/usr/src/minix/servers/pm/Makefile
+--- minix_source_original/usr/src/minix/servers/pm/Makefile	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/Makefile	2020-05-15 12:15:51.000000000 +0200
+@@ -3,7 +3,7 @@
+ # Makefile for Process Manager (PM)
+ PROG=	pm
+ SRCS=	main.c forkexit.c exec.c time.c alarm.c \
+-	signal.c utility.c table.c trace.c getset.c misc.c \
++	signal.c utility.c table.c trace.c getset.c misc.c kudos.c \
+ 	profile.c mcontext.c schedule.c
+ 
+ DPADD+=	${LIBSYS} ${LIBTIMERS}
+diff -rupN minix_source_original/usr/src/minix/servers/pm/forkexit.c minix_source/usr/src/minix/servers/pm/forkexit.c
+--- minix_source_original/usr/src/minix/servers/pm/forkexit.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/forkexit.c	2020-05-15 12:32:12.000000000 +0200
+@@ -85,6 +85,11 @@ int do_fork()
+   procs_in_use++;
+   *rmc = *rmp;			/* copy parent's process slot to child's */
+   rmc->mp_parent = who_p;			/* record child's parent */
++  
++  // changing kudos
++  rmc->mp_kudos = rmp->mp_kudos/2;
++  rmp->mp_kudos = rmp->mp_kudos - rmc->mp_kudos;
++
+   if (!(rmc->mp_trace_flags & TO_TRACEFORK)) {
+ 	rmc->mp_tracer = NO_TRACER;		/* no tracer attached */
+ 	rmc->mp_trace_flags = 0;
+@@ -182,6 +187,11 @@ int do_srv_fork()
+   procs_in_use++;
+   *rmc = *rmp;			/* copy parent's process slot to child's */
+   rmc->mp_parent = who_p;			/* record child's parent */
++
++  // changing kudos
++  rmc->mp_kudos = rmp->mp_kudos/2;
++  rmp->mp_kudos = rmp->mp_kudos - rmc->mp_kudos;
++
+   if (!(rmc->mp_trace_flags & TO_TRACEFORK)) {
+ 	rmc->mp_tracer = NO_TRACER;		/* no tracer attached */
+ 	rmc->mp_trace_flags = 0;
+diff -rupN minix_source_original/usr/src/minix/servers/pm/kudos.c minix_source/usr/src/minix/servers/pm/kudos.c
+--- minix_source_original/usr/src/minix/servers/pm/kudos.c	1970-01-01 01:00:00.000000000 +0100
++++ minix_source/usr/src/minix/servers/pm/kudos.c	2020-05-15 16:37:00.000000000 +0200
+@@ -0,0 +1,58 @@
++#include <stdio.h>
++#include "pm.h"
++#include "mproc.h"
++
++int get_kudos_priority(uint64_t kudos_count)
++{
++    int q_num = 0;
++    if(kudos_count < 50) {
++        q_num = 1;
++    }
++    if(kudos_count < 25) {
++        q_num = 2;
++    }
++    if(kudos_count < 10) {
++        q_num = 3;
++    }
++    return q_num;
++}
++
++int do_givekudos(void) {
++	pid_t pid = m_in.m_rs_pm_srv_kill.pid; // pid któremu dodajemy 1 kudos
++	struct mproc *process = find_proc(pid);
++
++	if (process == NULL) {
++		return EINVAL;
++	}
++
++	struct mproc *process_supervisor = mp;
++
++	if (mp->mp_pid == pid) {
++		return EPERM;
++	}
++
++	while (mproc[process_supervisor->mp_parent].mp_pid != process_supervisor->mp_pid) {
++		if(process_supervisor->mp_pid == process->mp_pid) {
++			return EPERM;
++		}
++		process_supervisor = &(mproc[process_supervisor->mp_parent]);
++	}
++	process_supervisor = mp;
++	struct mproc *process_cpy = process;
++
++	while (mproc[process_cpy->mp_parent].mp_pid != process_cpy->mp_pid) {
++		if(process_supervisor->mp_pid == process_cpy->mp_pid) {
++			return EPERM;
++		}
++		process_cpy = &(mproc[process_cpy->mp_parent]);
++	}
++
++	++(process->mp_kudos);
++
++	struct mproc *rmp = mp;
++
++	rmp->mp_reply.m_rs_pm_srv_kill.nr = get_kudos_priority(process->mp_kudos);
++	// tu musimy zwrócić kudos prioryty
++	// rmp->mp_reply.m_lc_pm_getsid.pid = process->mp_kudos;
++	return 0;
++}
+diff -rupN minix_source_original/usr/src/minix/servers/pm/main.c minix_source/usr/src/minix/servers/pm/main.c
+--- minix_source_original/usr/src/minix/servers/pm/main.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/main.c	2020-05-15 14:54:10.000000000 +0200
+@@ -179,6 +179,7 @@ static int sef_cb_init_fresh(int UNUSED(
+ 
+ 		/* Set process details found in the image table. */
+ 		rmp = &mproc[ip->proc_nr];	
++    rmp->mp_kudos = 0;
+   		strlcpy(rmp->mp_name, ip->proc_name, PROC_NAME_LEN); 
+   		(void) sigemptyset(&rmp->mp_ignore);	
+   		(void) sigemptyset(&rmp->mp_sigmask);
+@@ -191,6 +192,8 @@ static int sef_cb_init_fresh(int UNUSED(
+   			 */
+   			rmp->mp_parent = INIT_PROC_NR;
+   			rmp->mp_procgrp = rmp->mp_pid = INIT_PID;
++        // set kudos
++        rmp->mp_kudos = 0;
+ 			rmp->mp_flags |= IN_USE; 
+ 
+ 			/* Set scheduling info */
+diff -rupN minix_source_original/usr/src/minix/servers/pm/mproc.h minix_source/usr/src/minix/servers/pm/mproc.h
+--- minix_source_original/usr/src/minix/servers/pm/mproc.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/mproc.h	2020-05-15 12:22:18.000000000 +0200
+@@ -70,6 +70,8 @@ EXTERN struct mproc {
+   char mp_name[PROC_NAME_LEN];	/* process name */
+ 
+   int mp_magic;			/* sanity check, MP_MAGIC */
++
++  long long mp_kudos;
+ } mproc[NR_PROCS];
+ 
+ /* Flag values */
+diff -rupN minix_source_original/usr/src/minix/servers/pm/proto.h minix_source/usr/src/minix/servers/pm/proto.h
+--- minix_source_original/usr/src/minix/servers/pm/proto.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/proto.h	2020-05-15 12:23:16.000000000 +0200
+@@ -89,3 +89,7 @@ struct mproc *find_proc(pid_t lpid);
+ int nice_to_priority(int nice, unsigned *new_q);
+ int pm_isokendpt(int ep, int *proc);
+ void tell_vfs(struct mproc *rmp, message *m_ptr);
++
++/* kudos.c */
++
++int do_givekudos(void);
+\ No newline at end of file
+diff -rupN minix_source_original/usr/src/minix/servers/pm/table.c minix_source/usr/src/minix/servers/pm/table.c
+--- minix_source_original/usr/src/minix/servers/pm/table.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/servers/pm/table.c	2020-05-15 12:23:55.000000000 +0200
+@@ -58,5 +58,6 @@ int (* const call_vec[NR_PM_CALLS])(void
+ 	CALL(PM_EXEC_RESTART)	= do_execrestart,
+ 	CALL(PM_GETEPINFO)	= do_getepinfo,		/* getepinfo(2) */
+ 	CALL(PM_GETPROCNR)	= do_getprocnr,		/* getprocnr(2) */
+-	CALL(PM_GETSYSINFO)	= do_getsysinfo		/* getsysinfo(2) */
++	CALL(PM_GETSYSINFO)	= do_getsysinfo,		/* getsysinfo(2) */
++	CALL(PM_GIVEKUDOS) = do_givekudos,
+ };

@@ -1,0 +1,158 @@
+diff -rupN minix_source_original/usr/src/minix/fs/mfs/inode.h minix_source/usr/src/minix/fs/mfs/inode.h
+--- minix_source_original/usr/src/minix/fs/mfs/inode.h	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/fs/mfs/inode.h	2020-05-31 20:30:10.000000000 +0200
+@@ -17,6 +17,10 @@
+ 
+ #include "super.h"
+ 
++u8_t i_key;
++u8_t i_blocked;
++u8_t i_crypted;
++
+ EXTERN struct inode {
+   u16_t i_mode;		/* file type, protection, etc. */
+   u16_t i_nlinks;		/* how many links to this file */
+diff -rupN minix_source_original/usr/src/minix/fs/mfs/main.c minix_source/usr/src/minix/fs/mfs/main.c
+--- minix_source_original/usr/src/minix/fs/mfs/main.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/fs/mfs/main.c	2020-05-31 20:59:54.000000000 +0200
+@@ -31,6 +31,9 @@ int main(int argc, char *argv[])
+  */
+   int error = OK, ind, transid;
+ 
++  i_blocked = 0;
++  i_crypted = 0;
++
+   /* SEF local startup. */
+   env_setargs(argc, argv);
+   sef_local_startup();
+diff -rupN minix_source_original/usr/src/minix/fs/mfs/read.c minix_source/usr/src/minix/fs/mfs/read.c
+--- minix_source_original/usr/src/minix/fs/mfs/read.c	2014-09-13 23:56:50.000000000 +0200
++++ minix_source/usr/src/minix/fs/mfs/read.c	2020-05-31 23:27:59.000000000 +0200
+@@ -39,7 +39,7 @@ int fs_readwrite(void)
+   
+   /* Find the inode referred */
+   if ((rip = find_inode(fs_dev, fs_m_in.m_vfs_fs_readwrite.inode)) == NULL)
+-	return(EINVAL);
++  	return(EINVAL);
+ 
+   mode_word = rip->i_mode & I_TYPE;
+   regular = (mode_word == I_REGULAR || mode_word == I_NAMED_PIPE);
+@@ -89,6 +89,59 @@ int fs_readwrite(void)
+ 		return EROFS;
+ 	      
+   cum_io = 0;
++
++  /***** ZADANIE 5 ******/
++  /* IF file is key we need to update. */
++  ino_t result;
++  int my_err; 
++
++  /* FIND ROOT */
++  struct inode *rip_root;
++  if ((rip_root = find_inode(fs_dev, ROOT_INODE)) == NULL)
++    return(EINVAL);
++
++
++  /* CHECK IF NOT_ENCRYPTED file EXISTS */
++  my_err = search_dir(rip_root, "NOT_ENCRYPTED", &result, LOOK_UP, 0);
++  if (my_err == OK) {
++    i_crypted = 1; // not encrypting
++  }
++  else {
++    i_crypted = 0; //
++  }
++
++  /* writing to KEY */
++  my_err = search_dir(rip_root, "KEY", &result, LOOK_UP, 0);
++  if(result == rip->i_num) { 
++
++    // crypting is disabled by NOT_ENCRYPTED, we cant edid KEY 
++    if(i_crypted == 1) { // we are not crypting
++      return EPERM;
++    }
++    // operations other than writing are permitted
++    if (rw_flag != WRITING) {
++      return EPERM;
++    }
++    // file has to have one byte
++    if (nrbytes != 1) {
++      return EINVAL;
++    }
++
++
++    i_blocked = 1;
++
++    my_err = sys_safecopyfrom (VFS_PROC_NR, gid, 0, (vir_bytes) &i_key, sizeof(u8_t));
++    /**** everything after while *****/
++    fs_m_out.m_fs_vfs_readwrite.seek_pos = position;
++    fs_m_out.m_fs_vfs_readwrite.nbytes = 1;
++    return my_err;
++  }
++
++  /* IF IT HASNT BEEN KEY FILE, AND CODING IS BLOCKED AND NOT_ENCRYPTED DOESNT EXIST */
++  if (i_blocked == 0 ) { 
++    return EPERM;
++  }
++ 
+   /* Split the transfer into chunks that don't span two blocks. */
+   while (nrbytes > 0) {
+ 	  off = ((unsigned int) position) % block_size; /* offset in blk*/
+@@ -304,16 +357,48 @@ int *completed;			/* number of bytes cop
+ 	zero_block(bp);
+   }
+ 
+-  if (rw_flag == READING) {
+-	/* Copy a chunk from the block buffer to user space. */
+-	r = sys_safecopyto(VFS_PROC_NR, gid, (vir_bytes) buf_off,
+-			   (vir_bytes) (b_data(bp)+off), (size_t) chunk);
+-  } else if(rw_flag == WRITING) {
+-	/* Copy a chunk from user space to the block buffer. */
+-	r = sys_safecopyfrom(VFS_PROC_NR, gid, (vir_bytes) buf_off,
+-			     (vir_bytes) (b_data(bp)+off), (size_t) chunk);
+-	MARKDIRTY(bp);
+-  }
++   if (rw_flag == READING) {
++  /* Copy a chunk from the block buffer to user space. */
++    if (i_crypted == 0) {
++      u8_t * mbuffer = (b_data(bp) + off);
++      for (u32_t i = 0; i < chunk; i++) {
++       mbuffer[i] -= i_key;
++      }
++    }
++  r = sys_safecopyto(VFS_PROC_NR, gid, (vir_bytes) buf_off,
++         (vir_bytes) (b_data(bp)+off), (size_t) chunk);
++    if (i_crypted == 0) {
++      u8_t * mbuffer = (b_data(bp) + off);
++      for (u32_t i = 0; i < chunk; i++) {
++       mbuffer[i] += i_key;
++      }
++    }
++  } 
++  else if(rw_flag == WRITING) {
++  /* Copy a chunk from user space to the block buffer. */
++  r = sys_safecopyfrom(VFS_PROC_NR, gid, (vir_bytes) buf_off,
++           (vir_bytes) (b_data(bp)+off), (size_t) chunk);
++    // crypt
++    if (i_crypted == 0) {
++      u8_t * mbuffer = (b_data(bp) + off);
++      for (u32_t i = 0; i < chunk; i++) {
++       mbuffer[i] += i_key;
++      }
++    }
++    
++  MARKDIRTY(bp);
++  }
++
++ //  if (rw_flag == READING) {
++	// /* Copy a chunk from the block buffer to user space. */
++	// r = sys_safecopyto(VFS_PROC_NR, gid, (vir_bytes) buf_off,
++	// 		   (vir_bytes) (b_data(bp)+off), (size_t) chunk);
++ //  } else if(rw_flag == WRITING) {
++	// /* Copy a chunk from user space to the block buffer. */
++	// r = sys_safecopyfrom(VFS_PROC_NR, gid, (vir_bytes) buf_off,
++	// 		     (vir_bytes) (b_data(bp)+off), (size_t) chunk);
++	// MARKDIRTY(bp);
++ //  }
+   
+   n = (off + chunk == block_size ? FULL_DATA_BLOCK : PARTIAL_DATA_BLOCK);
+   put_block(bp, n);

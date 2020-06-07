@@ -1,4 +1,4 @@
-/*
+ /*
     Pi digits implementation using https://math.stackexchange.com/questions/880904/how-do-you-use-the-bbp-formula-to-calculate-the-nth-digit-of-%CF%80
     Uses __uint128_t from g++ other compilers might have different names for it. Compiles with g++ 9.3.0 on a 64bit CPU 
 */
