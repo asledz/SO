@@ -1,14 +1,13 @@
 # SO
 Systemy operacyjne, MIMUW
 
+Operating system course for MIMUW. Patches for MINIX creating new functionalities.
+
 
 ### Zadanie 1 - DLC
 
 Program kodujący enigmę
 
-### Zadanie 2 - PIX
-
-Niezaimplementowane
 
 ### Zadanie 3 
 
@@ -21,8 +20,6 @@ Nieskończone - dawanie kudosów procesom, szeregowanie ich wg. kudosów
 ### Zadanie 5
 
 Encryptowanie podłączonego dysku za pomocą klucza szyfrem cezara.
-
-### Zadanie 6
 
 
 ## Uruchamianie MINIXa
